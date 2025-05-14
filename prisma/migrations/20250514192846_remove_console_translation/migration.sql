@@ -20,20 +20,11 @@ CREATE TABLE "Console" (
 );
 
 -- CreateTable
-CREATE TABLE "ConsoleTranslation" (
-    "id" SERIAL NOT NULL,
-    "consoleId" INTEGER NOT NULL,
-    "locale" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-
-    CONSTRAINT "ConsoleTranslation_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "ConsoleVariant" (
     "id" SERIAL NOT NULL,
-    "consoleId" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
+    "consoleId" INTEGER NOT NULL,
 
     CONSTRAINT "ConsoleVariant_pkey" PRIMARY KEY ("id")
 );
@@ -140,10 +131,7 @@ CREATE UNIQUE INDEX "Console_slug_key" ON "Console"("slug");
 CREATE UNIQUE INDEX "Console_nickname_key" ON "Console"("nickname");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ConsoleTranslation_consoleId_locale_key" ON "ConsoleTranslation"("consoleId", "locale");
-
--- CreateIndex
-CREATE UNIQUE INDEX "ConsoleVariant_slug_key" ON "ConsoleVariant"("slug");
+CREATE UNIQUE INDEX "ConsoleVariant_consoleId_slug_key" ON "ConsoleVariant"("consoleId", "slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Skin_slug_key" ON "Skin"("slug");
@@ -171,9 +159,6 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- AddForeignKey
 ALTER TABLE "Console" ADD CONSTRAINT "Console_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ConsoleTranslation" ADD CONSTRAINT "ConsoleTranslation_consoleId_fkey" FOREIGN KEY ("consoleId") REFERENCES "Console"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ConsoleVariant" ADD CONSTRAINT "ConsoleVariant_consoleId_fkey" FOREIGN KEY ("consoleId") REFERENCES "Console"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

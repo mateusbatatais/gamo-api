@@ -14,34 +14,27 @@ model Brand {
 }
 
 model Console {
-  id           Int                  @id @default(autoincrement())
-  brandId      Int
-  brand        Brand                @relation(fields: [brandId], references: [id])
-  slug         String               @unique // e.g. 'playstation-5'
-  nickname     String               @unique // e.g. 'ps5'
-  translations ConsoleTranslation[]
-  variants     ConsoleVariant[]
-  accessories  Accessory[]
-  GameEdition  GameEdition[]
-  UserItem     UserItem[]
-}
-
-model ConsoleTranslation {
-  id        Int     @id @default(autoincrement())
-  consoleId Int
-  console   Console @relation(fields: [consoleId], references: [id])
-  locale    String // 'pt' ou 'en'
-  name      String // 'PlayStation 5', etc.
-
-  @@unique([consoleId, locale])
+  id          Int              @id @default(autoincrement())
+  brandId     Int
+  brand       Brand            @relation(fields: [brandId], references: [id])
+  slug        String           @unique // e.g. 'playstation-5'
+  nickname    String           @unique // e.g. 'ps5'
+  name        String // e.g. 'PlayStation 5'
+  variants    ConsoleVariant[]
+  accessories Accessory[]
+  GameEdition GameEdition[]
+  UserItem    UserItem[]
 }
 
 model ConsoleVariant {
   id        Int     @id @default(autoincrement())
-  consoleId Int
+  name      String
+  slug      String
   console   Console @relation(fields: [consoleId], references: [id])
-  slug      String  @unique // 'fat', 'slim', 'pro'
-  skins     Skin[]
+  consoleId Int
+  Skin      Skin[]
+
+  @@unique([consoleId, slug])
 }
 
 model Skin {

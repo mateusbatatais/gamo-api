@@ -8,13 +8,14 @@ async function main() {
     update: {},
     create: { slug: "sony" },
   });
+
   const microsoft = await db.brand.upsert({
     where: { slug: "microsoft" },
     update: {},
     create: { slug: "microsoft" },
   });
 
-  // 2. Consoles com nickname
+  // 2. Consoles com nickname e traduções
   const ps5 = await db.console.upsert({
     where: { slug: "playstation-5" },
     update: {},
@@ -22,14 +23,10 @@ async function main() {
       slug: "playstation-5",
       nickname: "ps5",
       brandId: sony.id,
-      translations: {
-        create: [
-          { locale: "pt", name: "PlayStation 5" },
-          { locale: "en", name: "PlayStation 5" },
-        ],
-      },
+      name: "PlayStation 5",
     },
   });
+
   const xboxX = await db.console.upsert({
     where: { slug: "xbox-series-x" },
     update: {},
@@ -37,39 +34,36 @@ async function main() {
       slug: "xbox-series-x",
       nickname: "xboxx",
       brandId: microsoft.id,
-      translations: {
-        create: [
-          { locale: "pt", name: "Xbox Series X" },
-          { locale: "en", name: "Xbox Series X" },
-        ],
-      },
+      name: "Xbox Series X",
     },
   });
 
-  // 3. Variações PS5
+  // 3. Variações do PS5 (com nome)
   const [fat, slim, pro] = await Promise.all([
     db.consoleVariant.upsert({
       where: { consoleId_slug: { consoleId: ps5.id, slug: "fat" } },
       update: {},
-      create: { consoleId: ps5.id, slug: "fat" },
+      create: { name: "Fat", consoleId: ps5.id, slug: "fat" },
     }),
     db.consoleVariant.upsert({
       where: { consoleId_slug: { consoleId: ps5.id, slug: "slim" } },
       update: {},
-      create: { consoleId: ps5.id, slug: "slim" },
+      create: { name: "Slim", consoleId: ps5.id, slug: "slim" },
     }),
     db.consoleVariant.upsert({
       where: { consoleId_slug: { consoleId: ps5.id, slug: "pro" } },
       update: {},
-      create: { consoleId: ps5.id, slug: "pro" },
+      create: { name: "Pro", consoleId: ps5.id, slug: "pro" },
     }),
   ]);
 
-  // 4. Skin exemplo (PS5 Slim)
-  await db.skin.create({
-    data: {
-      consoleVariantId: slim.id,
+  // 4. Skin do PS5 Slim (com traduções)
+  await db.skin.upsert({
+    where: { slug: "midnight-black" },
+    update: {},
+    create: {
       slug: "midnight-black",
+      consoleVariantId: slim.id,
       translations: {
         create: [
           { locale: "pt", name: "Preto Meia-Noite" },
@@ -79,7 +73,7 @@ async function main() {
     },
   });
 
-  // 5. Acessórios PS5
+  // 5. Acessório PS5
   await db.accessory.upsert({
     where: { slug: "dualsense-controller" },
     update: {},
@@ -91,7 +85,7 @@ async function main() {
           {
             locale: "pt",
             name: "Controle DualSense",
-            description: "Controle oficial PS5",
+            description: "Controle oficial do PS5",
           },
           {
             locale: "en",
@@ -103,7 +97,7 @@ async function main() {
     },
   });
 
-  // 6. Jogos e edições
+  // 6. Jogo e edições por console
   const sm2 = await db.game.upsert({
     where: { slug: "spider-man-2" },
     update: {},
@@ -117,6 +111,7 @@ async function main() {
       },
     },
   });
+
   await Promise.all([
     db.gameEdition.upsert({
       where: { gameId_consoleId: { gameId: sm2.id, consoleId: ps5.id } },
@@ -135,7 +130,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("❌ Erro no seed:", e);
     process.exit(1);
   })
   .finally(async () => {
