@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Brand {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  consoles Console[]
+}
+
+model Console {
+  id           Int                  @id @default(autoincrement())
+  brandId      Int
+  brand        Brand                @relation(fields: [brandId], references: [id])
+  slug         String               @unique // e.g. 'playstation-5'
+  nickname     String               @unique // e.g. 'ps5'
+  translations ConsoleTranslation[]
+  variants     ConsoleVariant[]
+  accessories  Accessory[]
+  GameEdition  GameEdition[]
+  UserItem     UserItem[]
+}
+
+model ConsoleTranslation {
+  id        Int     @id @default(autoincrement())
+  consoleId Int
+  console   Console @relation(fields: [consoleId], references: [id])
+  locale    String // 'pt' ou 'en'
+  name      String // 'PlayStation 5', etc.
+
+  @@unique([consoleId, locale])
+}
+
+model ConsoleVariant {
+  id        Int     @id @default(autoincrement())
+  consoleId Int
+  console   Console @relation(fields: [consoleId], references: [id])
+  slug      String  @unique // 'fat', 'slim', 'pro'
+  skins     Skin[]
+}
+
+model Skin {
+  id               Int               @id @default(autoincrement())
+  consoleVariantId Int
+  consoleVariant   ConsoleVariant    @relation(fields: [consoleVariantId], references: [id])
+  slug             String            @unique // 'midnight-black'
+  translations     SkinTranslation[]
+}
+
+model SkinTranslation {
+  id     Int    @id @default(autoincrement())
+  skinId Int
+  skin   Skin   @relation(fields: [skinId], references: [id])
+  locale String // 'pt' ou 'en'
+  name   String // 'Preto Meia-Noite', etc.
+
+  @@unique([skinId, locale])
+}
+
+model Accessory {
+  id           Int                    @id @default(autoincrement())
+  consoleId    Int
+  console      Console                @relation(fields: [consoleId], references: [id])
+  slug         String                 @unique // 'dualsense-controller'
+  translations AccessoryTranslation[]
+}
+
+model AccessoryTranslation {
+  id          Int       @id @default(autoincrement())
+  accessoryId Int
+  accessory   Accessory @relation(fields: [accessoryId], references: [id])
+  locale      String // 'pt' ou 'en'
+  name        String
+  description String?
+
+  @@unique([accessoryId, locale])
+}
+
+model Game {
+  id           Int               @id @default(autoincrement())
+  slug         String            @unique // 'spider-man-2'
+  translations GameTranslation[]
+  editions     GameEdition[]
+  UserItem     UserItem[]
+}
+
+model GameTranslation {
+  id          Int     @id @default(autoincrement())
+  gameId      Int
+  game        Game    @relation(fields: [gameId], references: [id])
+  locale      String // 'pt' ou 'en'
+  title       String
+  description String?
+
+  @@unique([gameId, locale])
+}
+
+model GameEdition {
+  id        Int     @id @default(autoincrement())
+  gameId    Int
+  consoleId Int
+  game      Game    @relation(fields: [gameId], references: [id])
+  console   Console @relation(fields: [consoleId], references: [id])
+  coverUrl  String?
+
+  @@unique([gameId, consoleId])
+}
+
+model User {
+  id       Int        @id @default(autoincrement())
+  name     String
+  email    String     @unique
+  password String?
+  items    UserItem[]
+}
+
+model UserItem {
+  id         Int        @id @default(autoincrement())
+  userId     Int
+  gameId     Int
+  consoleId  Int
+  status     ItemStatus
+  customName String?
+  photoUrl   String?
+  createdAt  DateTime   @default(now())
+  user       User       @relation(fields: [userId], references: [id])
+  game       Game       @relation(fields: [gameId], references: [id])
+  console    Console    @relation(fields: [consoleId], references: [id])
+}
+
+enum ItemStatus {
+  OWNED
+  SELLING
+  WISHLIST
+}
