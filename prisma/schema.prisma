@@ -24,15 +24,17 @@ model Console {
   accessories Accessory[]
   GameEdition GameEdition[]
   UserItem    UserItem[]
+  UserConsole UserConsole[]
 }
 
 model ConsoleVariant {
-  id        Int     @id @default(autoincrement())
-  name      String
-  slug      String
-  console   Console @relation(fields: [consoleId], references: [id])
-  consoleId Int
-  Skin      Skin[]
+  id          Int           @id @default(autoincrement())
+  name        String
+  slug        String
+  console     Console       @relation(fields: [consoleId], references: [id])
+  consoleId   Int
+  Skin        Skin[]
+  UserConsole UserConsole[]
 
   @@unique([consoleId, slug])
 }
@@ -43,6 +45,7 @@ model Skin {
   consoleVariant   ConsoleVariant    @relation(fields: [consoleVariantId], references: [id])
   slug             String            @unique // 'midnight-black'
   translations     SkinTranslation[]
+  UserConsole      UserConsole[]
 }
 
 model SkinTranslation {
@@ -105,11 +108,12 @@ model GameEdition {
 }
 
 model User {
-  id       Int        @id @default(autoincrement())
-  name     String
-  email    String     @unique
-  password String?
-  items    UserItem[]
+  id          Int           @id @default(autoincrement())
+  name        String
+  email       String        @unique
+  password    String?
+  items       UserItem[]
+  UserConsole UserConsole[]
 }
 
 model UserItem {
@@ -124,6 +128,23 @@ model UserItem {
   user       User       @relation(fields: [userId], references: [id])
   game       Game       @relation(fields: [gameId], references: [id])
   console    Console    @relation(fields: [consoleId], references: [id])
+}
+
+model UserConsole {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  consoleId        Int
+  consoleVariantId Int
+  skinId           Int? // opcional
+  customSkin       String?
+  note             String?
+  photoUrl         String?
+  createdAt        DateTime @default(now())
+
+  user    User           @relation(fields: [userId], references: [id])
+  console Console        @relation(fields: [consoleId], references: [id])
+  variant ConsoleVariant @relation(fields: [consoleVariantId], references: [id])
+  skin    Skin?          @relation(fields: [skinId], references: [id])
 }
 
 enum ItemStatus {
