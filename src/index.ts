@@ -1,12 +1,14 @@
+import "dotenv/config";
 import express from "express";
+import authRouter from "./routes/auth";
+import { authMiddleware } from "./middleware/auth";
 import userConsolesRouter from "./routes/userConsoles";
 
 const app = express();
 app.use(express.json());
 
-// Todas as requisições a /api/user/consoles
-// vão para o router definido em src/routes/userConsoles.ts
-app.use("/api/user/consoles", userConsolesRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/user/consoles", authMiddleware, userConsolesRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
