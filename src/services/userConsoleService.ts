@@ -1,4 +1,13 @@
-import { db } from "../db";
+import { db } from "../lib/db";
+
+export interface CreateUserConsoleInput {
+  consoleId: number;
+  variantSlug: string;
+  skinSlug?: string | null;
+  customSkin?: string | null;
+  note?: string | null;
+  photoUrl?: string | null;
+}
 
 export async function listUserConsoles(userId: number) {
   return db.userConsole.findMany({
@@ -9,14 +18,7 @@ export async function listUserConsoles(userId: number) {
 
 export async function addUserConsole(
   userId: number,
-  data: {
-    consoleId: number;
-    variantSlug: string;
-    skinSlug?: string;
-    customSkin?: string;
-    note?: string;
-    photoUrl?: string;
-  }
+  data: CreateUserConsoleInput
 ) {
   const variant = await db.consoleVariant.findUnique({
     where: {
