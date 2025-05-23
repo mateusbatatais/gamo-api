@@ -1,7 +1,21 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
+
 const db = new PrismaClient();
 
 async function main() {
+
+await db.user.upsert({
+  where: { email: "admin@gamo.com" },
+  update: {},
+  create: {
+    name: "Super Admin",
+    email: "admin@gamo.com",
+    password: await bcrypt.hash("senhaForte", 10),
+    role: "SUPER_ADMIN",
+  }
+});
+
   // 1. Marcas
   const sony = await db.brand.upsert({
     where: { slug: "sony" },
