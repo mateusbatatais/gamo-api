@@ -114,6 +114,7 @@ model User {
   password    String?
   items       UserItem[]
   UserConsole UserConsole[]
+  role Role @default(NORMAL)
 }
 
 model UserItem {
@@ -147,8 +148,15 @@ model UserConsole {
   skin    Skin?          @relation(fields: [skinId], references: [id])
 }
 
+
 enum ItemStatus {
   OWNED
   SELLING
   WISHLIST
+}
+
+enum Role {
+  NORMAL
+  ADMIN
+  SUPER_ADMIN
 }
