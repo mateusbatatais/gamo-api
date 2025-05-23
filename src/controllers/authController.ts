@@ -1,6 +1,8 @@
 // src/controllers/authController.ts
 import { Request, Response, NextFunction } from "express";
 import * as authService from "../services/authService";
+import { db } from "../lib/db";
+import jwt from "jsonwebtoken";
 
 export async function signup(
   req: Request,
@@ -42,6 +44,38 @@ export async function login(
       res.status(400).json({ error: err.message });
       return;
     }
+    next(err);
+  }
+}
+
+export async function socialLogin(req: Request, res: Response, next: NextFunction) {
+  try {
+    // O middleware firebaseAuthMiddleware já colocou o decoded token aqui
+    const firebaseUser = (req as any).firebaseUser;
+    const { uid, email, name, picture } = firebaseUser;
+
+    // Upsert do usuário no seu banco
+    const user = await db.user.upsert({
+      where: { email },
+      update: {},
+      create: {
+        name: name || email.split("@")[0],
+        email,
+        password: null,         // senha não usada
+        role: "NORMAL",
+        // você pode salvar também firebaseUid: uid em um campo extra
+      }
+    });
+
+    // Emita seu próprio JWT
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
+    );
+
+    res.json({ token });
+  } catch (err) {
     next(err);
   }
 }
