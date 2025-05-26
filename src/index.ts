@@ -4,14 +4,25 @@ import express from "express";
 import authRouter from "./routes/auth";
 import { authMiddleware } from "./middleware/auth";
 import userConsolesRouter from "./routes/userConsoles";
+import cors from "cors";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  })
+);
+
 app.use(express.json());
 
 app.use("/api/auth", authRouter);
 app.use("/api/user/consoles", authMiddleware, userConsolesRouter);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () =>
   console.log(`🚀 Server rodando em http://localhost:${PORT}`)
 );
