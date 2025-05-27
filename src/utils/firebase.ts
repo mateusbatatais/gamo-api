@@ -5,7 +5,7 @@ import { join } from "path";
 
 // Carrega o JSON da chave
 const serviceAccount = JSON.parse(
-  readFileSync(join(__dirname, "../../firebase-key.json"), "utf8")
+  process.env.FIREBASE_SERVICE_ACCOUNT!
 ) as ServiceAccount;
 
 admin.initializeApp({
