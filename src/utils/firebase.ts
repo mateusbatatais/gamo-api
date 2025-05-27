@@ -1,12 +1,13 @@
-// src/utils/firebase.ts
 import admin, { ServiceAccount } from "firebase-admin";
-import { readFileSync } from "fs";
-import { join } from "path";
 
-// Carrega o JSON da chave
-const serviceAccount = JSON.parse(
-  process.env.FIREBASE_SERVICE_ACCOUNT!
-) as ServiceAccount;
+let serviceAccount: ServiceAccount;
+
+// Se você usou base64:
+const raw = Buffer.from(
+  process.env.FIREBASE_SERVICE_ACCOUNT!,
+  "base64"
+).toString();
+serviceAccount = JSON.parse(raw);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
