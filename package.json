@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "start": "npx prisma migrate deploy && npx prisma db seed && node dist/index.js",
     "build": "tsc",
+    "migrate": "npx prisma migrate deploy",
+    "seed": "ts-node --transpile-only prisma/seed.ts",
+    "start": "npm run migrate && npm run seed && node dist/index.js",
     "token": "node -e \"console.log(require('jsonwebtoken').sign({ userId: 1 }, process.env.JWT_SECRET, { expiresIn: '1h' }))\"",
     "prisma:studio": "prisma studio",
     "prisma:migrate:dev": "prisma migrate dev",
