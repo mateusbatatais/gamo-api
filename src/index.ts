@@ -24,6 +24,11 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userProfileRouter);
 app.use("/api/user/consoles", authMiddleware, userConsolesRouter);
 
+// rota para verificar se o servidor está vivo
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", time: new Date().toISOString() });
+});
+
 const PORT = process.env.PORT;
 if (!PORT) {
   throw new Error("PORT não definida");
