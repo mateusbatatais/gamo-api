@@ -2,6 +2,22 @@
 import * as userConsoleRepository from "../../src/repositories/userConsoleRepository";
 import { addUserConsole } from "../../src/services/userConsoleService";
 
+jest.mock("../../src/lib/db", () => ({
+  db: {
+    userConsole: {
+      create: jest.fn().mockResolvedValue({ id: 1, note: "meu console" }),
+    },
+    consoleVariant: {
+      findUnique: jest
+        .fn()
+        .mockResolvedValue({ id: 1, slug: "slim", consoleId: 1 }),
+    },
+    skin: {
+      findUnique: jest.fn().mockResolvedValue(null),
+    },
+  },
+}));
+
 describe("addUserConsole", () => {
   it("cria com sucesso um novo console na coleção", async () => {
     jest.spyOn(userConsoleRepository, "createUserConsole").mockResolvedValue({
