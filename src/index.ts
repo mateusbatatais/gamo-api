@@ -24,15 +24,21 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userProfileRouter);
 app.use("/api/user/consoles", authMiddleware, userConsolesRouter);
 
-// rota para verificar se o servidor está vivo
+// Healthcheck + log quando chega requisição
 app.get("/health", (_req, res) => {
+  console.log("🏥 Healthcheck recebido");
   res.json({ status: "ok", time: new Date().toISOString() });
 });
 
-const PORT = process.env.PORT;
-if (!PORT) {
-  throw new Error("PORT não definida");
+const rawPort = process.env.PORT;
+if (!rawPort) {
+  console.error("❌ PORT não definida!");
+  process.exit(1);
 }
-app.listen(PORT, () =>
-  console.log(`🚀 Server rodando em http://localhost:${PORT}`)
-);
+const PORT = Number(rawPort);
+console.log(`🔌 Tentando ouvir em 0.0.0.0:${PORT}…`);
+
+// Escutar em todas as interfaces IPv4 (0.0.0.0)
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server rodando em 0.0.0.0:${PORT}`);
+});
