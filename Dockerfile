@@ -1,42 +1,44 @@
-# --- Stage 1: Builder ---
-FROM node:18-alpine AS builder
+# --------------------------
+# Etapa 1: Builder
+# --------------------------
+FROM node:23-alpine AS builder
 
+# Diretório de trabalho
 WORKDIR /app
 
-# 1) Copia apenas package.json e package-lock.json para aproveitar cache
+# Copia apenas os arquivos necessários para instalação das dependências
 COPY package.json package-lock.json ./
 
-# 2) Instala dependências de produção e desenvolvimento
+# Instala as dependências (inclusive dev)
 RUN npm install
 
-# 3) Copia o restante dos arquivos
+# Copia o restante dos arquivos
 COPY . .
 
-# 4) Gera o Prisma Client
+# Gera o Prisma Client
 RUN npx prisma generate
 
-# 5) Aplica migrations num ambiente que já conhece o client
-RUN npx prisma migrate deploy
-
-# 6) Compila o código TypeScript
+# Compila o TypeScript
 RUN npm run build
 
-# --- Stage 2: Runner (menor) ---
-FROM node:18-alpine AS runner
+# --------------------------
+# Etapa 2: Runner
+# --------------------------
+FROM node:23-alpine AS runner
 
+# Diretório de trabalho
 WORKDIR /app
 
-# 1) Copia só o necessário para rodar
+# Copia os artefatos da etapa de build
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/package-lock.json ./
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma ./prisma      
-COPY --from=builder /app/dist ./dist           
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/dist ./dist
 
+# Define a variável de ambiente
 ENV NODE_ENV=production
-
-# 2) Expõe a porta (se necessário)
 EXPOSE 3001
 
-# 3) Comando final
-CMD ["node", "dist/index.js"]
+# Aplica migrations no ambiente de produção e inicia o servidor
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
