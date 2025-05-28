@@ -24,7 +24,10 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userProfileRouter);
 app.use("/api/user/consoles", authMiddleware, userConsolesRouter);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
+if (!PORT) {
+  throw new Error("PORT não definida");
+}
 app.listen(PORT, () =>
   console.log(`🚀 Server rodando em http://localhost:${PORT}`)
 );
