@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "start": "npx prisma migrate deploy && node dist/index.js",
+    "start": "npx prisma migrate deploy && npx prisma db seed && node dist/index.js",
     "build": "tsc",
     "token": "node -e \"console.log(require('jsonwebtoken').sign({ userId: 1 }, process.env.JWT_SECRET, { expiresIn: '1h' }))\"",
     "prisma:studio": "prisma studio",
