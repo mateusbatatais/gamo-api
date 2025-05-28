@@ -37,7 +37,7 @@ COPY --from=builder /app/dist ./dist
 
 # 2) Define ambiente de produção e expõe porta
 ENV NODE_ENV=production
-EXPOSE 8080 3001
+EXPOSE 8080
 
 # 3) Start: aplica migrations e inicia o servidor
 CMD ["npm", "start"]
