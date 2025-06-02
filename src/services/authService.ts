@@ -1,7 +1,7 @@
 // src/services/authService.ts
 
 import { db } from "../lib/db";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export interface SignupInput {
