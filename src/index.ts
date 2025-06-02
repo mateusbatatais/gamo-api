@@ -5,7 +5,7 @@ import authRouter from "./routes/auth";
 import { authMiddleware } from "./middleware/auth";
 import userConsolesRouter from "./routes/userConsoles";
 import userProfileRouter from "./routes/userProfile";
-import cors from "cors";
+const cors = require("cors");
 
 const app = express();
 
