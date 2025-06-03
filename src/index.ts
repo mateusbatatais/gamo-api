@@ -6,13 +6,19 @@ import { authMiddleware } from "./middleware/auth";
 import userConsolesRouter from "./routes/userConsoles";
 import userProfileRouter from "./routes/userProfile";
 import { AppError } from "./utils/errors";
-
-const cors = require("cors");
 const app = express();
+const cors = require("cors");
+
+const FRONTEND_URL = process.env.FRONTEND_URL;
+
+if (!FRONTEND_URL) {
+  console.error("❌ FRONTEND_URL não configurada!");
+  process.exit(1);
+}
 
 app.use(
   cors({
-    origin: true,
+    origin: FRONTEND_URL,
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
