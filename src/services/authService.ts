@@ -17,7 +17,7 @@ export interface LoginInput {
   password: string;
 }
 
-// Tempo de expiração do token
+// Tempo de expiração do JWT
 const TOKEN_EXPIRES_IN = "7d";
 
 // Gera o JWT a partir de um userId
@@ -27,23 +27,22 @@ function signToken(userId: number): string {
   });
 }
 
-/**
- * Cria um novo usuário e retorna um JWT.
- * @throws se campos estiverem faltando ou e-mail já existir
- */
-// Gera token de confirmação e expira em X horas
+// Gera um token de verificação de e-mail e a data de expiração (24h)
 function generateEmailToken() {
   const rawToken = crypto.randomBytes(32).toString("hex");
-  // Expira em 24 horas:
-  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
   return { rawToken, expires };
 }
 
-export async function signup(input: {
-  name?: string;
-  email?: string;
-  password?: string;
-}): Promise<{ userId: number; rawToken: string }> {
+/**
+ * Cria um novo usuário e retorna { userId, rawToken } para verificação de e-mail.
+ * Em vez de retornar JWT, gera token de confirmação e salva no banco.
+ * @throws AppError(400, "MISSING_FIELDS", ...)  se faltar algum campo
+ * @throws AppError(409, "USER_ALREADY_EXISTS", ...) se o e-mail já existir
+ */
+export async function signup(
+  input: SignupInput
+): Promise<{ userId: number; rawToken: string }> {
   const { name, email, password } = input;
   if (!name || !email || !password) {
     throw new AppError(400, "MISSING_FIELDS", "Missing fields");
@@ -55,17 +54,17 @@ export async function signup(input: {
     throw new AppError(409, "USER_ALREADY_EXISTS", "User already exists");
   }
 
-  // Cria o hash da senha
+  // Hash da senha
   const hash = await bcrypt.hash(password, 10);
   const { rawToken, expires } = generateEmailToken();
 
-  // Cria usuário com campos de verificação de e-mail populados:
+  // Cria usuário com campos de verificação de e-mail
   const user = await db.user.create({
     data: {
       name,
       email,
       password: hash,
-      emailVerified: false, // ainda não confirmado
+      emailVerified: false,
       emailVerificationToken: rawToken,
       emailVerificationTokenExpires: expires,
     },
@@ -76,20 +75,31 @@ export async function signup(input: {
 
 /**
  * Autentica um usuário existente e retorna um JWT.
- * @throws se credenciais forem inválidas
+ * Verifica se e-mail já foi confirmado.
+ * @throws AppError(400, "MISSING_FIELDS", ...)
+ * @throws AppError(401, "INVALID_CREDENTIALS", ...)
+ * @throws AppError(403, "EMAIL_NOT_VERIFIED", ...)
  */
 export async function login(input: LoginInput): Promise<string> {
   const { email, password } = input;
   if (!email || !password) {
-    throw new Error("Missing fields");
+    throw new AppError(400, "MISSING_FIELDS", "Missing fields");
   }
+
   const user = await db.user.findUnique({ where: { email } });
   if (!user || !user.password) {
-    throw new Error("Invalid credentials");
+    throw new AppError(401, "INVALID_CREDENTIALS", "Invalid credentials");
   }
+
+  // Verifica se o e-mail do usuário já foi confirmado
+  if (!user.emailVerified) {
+    throw new AppError(403, "EMAIL_NOT_VERIFIED", "Email not verified");
+  }
+
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
-    throw new Error("Invalid credentials");
+    throw new AppError(401, "INVALID_CREDENTIALS", "Invalid credentials");
   }
+
   return signToken(user.id);
 }
