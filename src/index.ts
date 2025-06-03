@@ -10,58 +10,47 @@ import cors from "cors";
 
 const app = express();
 
-const FRONTEND_URL = process.env.FRONTEND_URL;
-console.log("→ FRONTEND_URL (env) =", FRONTEND_URL);
+// Para depurar: veja qual path está chegando e qual Origin
+app.use((req, res, next) => {
+  console.log(
+    "→ [DEBUG] req.path =",
+    req.path,
+    "| Origin =",
+    req.headers.origin
+  );
+  next();
+});
 
+const FRONTEND_URL = process.env.FRONTEND_URL;
 if (!FRONTEND_URL) {
   console.error("❌ FRONTEND_URL não configurada!");
   process.exit(1);
 }
 
-// Middleware para logar o origin que chega
-app.use((req, res, next) => {
-  console.log("→ Incoming request Origin:", req.headers.origin);
-  next();
-});
-
-// Configuração CORS
-const allowedOrigins = [
-  FRONTEND_URL,
-  FRONTEND_URL.replace(/^https:\/\//, "http://"),
-];
-// (ou adicione "https://gamo.games" se precisar aceitar sem www)
 app.use(
   cors({
-    origin: (incomingOrigin: string, callback: any) => {
-      if (!incomingOrigin) return callback(null, true);
-      if (allowedOrigins.includes(incomingOrigin)) {
-        return callback(null, true);
-      }
-      return callback(new Error("CORS: origem não autorizada"), false);
-    },
+    origin: FRONTEND_URL,
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
 
-// Permite preflight para todas as rotas
+// opcional: responder OPTIONS antes de qualquer rota
 app.options("*", cors());
 
-// Body parser
 app.use(express.json());
 
-// Rotas principais
+// Rotas
 app.use("/api/auth", authRouter);
 app.use("/api/user", userProfileRouter);
 app.use("/api/user/consoles", authMiddleware, userConsolesRouter);
 
-// Health check
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });
 });
 
-// Middleware global de erro
+// Middleware geral de erro
 app.use(
   (
     err: any,
@@ -78,10 +67,12 @@ app.use(
         .status(err.statusCode)
         .json({ code: err.code, message: err.message });
     }
-    res.status(500).json({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Internal Server Error",
-    });
+    res
+      .status(500)
+      .json({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Internal Server Error",
+      });
   }
 );
 
