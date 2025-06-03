@@ -12,6 +12,7 @@ async function main() {
       email: "admin@gamo.games",
       password: await bcrypt.hash("1234", 10),
       role: "SUPER_ADMIN",
+      emailVerified: true,
     },
   });
 
