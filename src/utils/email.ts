@@ -4,12 +4,12 @@ import nodemailer from "nodemailer";
 
 // Configuração do transporter. No .env definimos SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: false, // true se usar 465
+  host: process.env.SMTP_HOST, // deve ser "smtp.mailtrap.io"
+  port: Number(process.env.SMTP_PORT) || 2525,
+  secure: false,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: process.env.SMTP_USER, // ex: "bc1b29a58e4e6a"
+    pass: process.env.SMTP_PASS, // ex: "df85e988a2d26b"
   },
 });
 

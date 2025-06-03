@@ -12,7 +12,7 @@ const router = Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
-router.get("/verify-email", verifyEmail); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+router.get("/verify-email", verifyEmail);
 router.post("/social/google", firebaseAuthMiddleware, socialLogin);
 
 export default router;
