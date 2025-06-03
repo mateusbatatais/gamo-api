@@ -10,47 +10,28 @@ import cors from "cors";
 
 const app = express();
 
-// Para depurar: veja qual path está chegando e qual Origin
-app.use((req, res, next) => {
-  console.log(
-    "→ [DEBUG] req.path =",
-    req.path,
-    "| Origin =",
-    req.headers.origin
-  );
-  next();
-});
-
-const FRONTEND_URL = process.env.FRONTEND_URL;
-if (!FRONTEND_URL) {
-  console.error("❌ FRONTEND_URL não configurada!");
-  process.exit(1);
-}
-
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: true,
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
 
-// opcional: responder OPTIONS antes de qualquer rota
-app.options("*", cors());
-
 app.use(express.json());
 
-// Rotas
+// Rotas principais
 app.use("/api/auth", authRouter);
 app.use("/api/user", userProfileRouter);
 app.use("/api/user/consoles", authMiddleware, userConsolesRouter);
 
+// Health check
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });
 });
 
-// Middleware geral de erro
+// ---------- Middleware global de erro (sempre por último) ----------
 app.use(
   (
     err: any,
@@ -59,22 +40,25 @@ app.use(
     next: express.NextFunction
   ) => {
     console.error("[GLOBAL ERROR]", err);
+
     if (res.headersSent) {
       return next(err);
     }
+
     if (err instanceof AppError) {
       return res
         .status(err.statusCode)
         .json({ code: err.code, message: err.message });
     }
-    res
-      .status(500)
-      .json({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Internal Server Error",
-      });
+
+    res.status(500).json({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Internal Server Error",
+    });
   }
 );
+
+// ---------------------------------------------------------------
 
 const rawPort = process.env.PORT;
 if (!rawPort) {
