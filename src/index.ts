@@ -10,6 +10,11 @@ import cors from "cors";
 
 const app = express();
 
+app.use((req, _res, next) => {
+  console.log("[CORS DEBUG] Origin recebida:", req.headers.origin);
+  next();
+});
+
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
