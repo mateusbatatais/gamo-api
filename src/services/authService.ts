@@ -103,3 +103,44 @@ export async function login(input: LoginInput): Promise<string> {
 
   return signToken(user.id);
 }
+
+/**
+ * (Re)gera um token de verificação para o e-mail informado e atualiza o usuário.
+ * @throws AppError(400, "MISSING_FIELDS", ...)   se não fornecer email
+ * @throws AppError(404, "USER_NOT_FOUND", ...)    se não encontrar usuário
+ * @throws AppError(400, "ALREADY_VERIFIED", ...)  se o e-mail já estiver verificado
+ */
+export async function resendVerificationToken({
+  email,
+}: {
+  email: string;
+}): Promise<{ rawToken: string }> {
+  if (!email) {
+    throw new AppError(400, "MISSING_FIELDS", "Email is required");
+  }
+
+  // Tenta encontrar o usuário pelo e-mail
+  const user = await db.user.findUnique({ where: { email } });
+  if (!user) {
+    throw new AppError(404, "USER_NOT_FOUND", "User not found");
+  }
+
+  // Se já estiver verificado, não faz sentido reenviar token
+  if (user.emailVerified) {
+    throw new AppError(400, "ALREADY_VERIFIED", "Email already verified");
+  }
+
+  // Gera novo token e expiração
+  const { rawToken, expires } = generateEmailToken();
+
+  // Atualiza no banco
+  await db.user.update({
+    where: { email },
+    data: {
+      emailVerificationToken: rawToken,
+      emailVerificationTokenExpires: expires,
+    },
+  });
+
+  return { rawToken };
+}

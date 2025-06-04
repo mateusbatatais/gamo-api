@@ -160,3 +160,35 @@ export async function verifyEmail(
     next(err);
   }
 }
+
+export async function resendVerification(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res
+        .status(400)
+        .json({ code: "MISSING_FIELDS", message: "Email is required" });
+      return;
+    }
+
+    // Chama a função que existe no service:
+    const { rawToken } = await authService.resendVerificationToken({ email });
+    await sendVerificationEmail(email, rawToken);
+
+    res.json({
+      code: "RESEND_SUCCESS",
+      message: "Verification email sent again.",
+    });
+    return;
+  } catch (err: any) {
+    if (err instanceof AppError) {
+      res.status(err.statusCode).json({ code: err.code, message: err.message });
+      return;
+    }
+    next(err);
+  }
+}
