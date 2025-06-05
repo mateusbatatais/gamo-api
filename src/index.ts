@@ -16,7 +16,7 @@ app.use(
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  })
+  }),
 );
 
 app.use(express.json());
@@ -34,10 +34,10 @@ app.get("/health", (_req, res) => {
 // ---------- Middleware global de erro (sempre por último) ----------
 app.use(
   (
-    err: any,
+    err: unknown,
     req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    next: express.NextFunction,
   ) => {
     console.error("[GLOBAL ERROR]", err);
 
@@ -55,7 +55,7 @@ app.use(
       code: "INTERNAL_SERVER_ERROR",
       message: "Internal Server Error",
     });
-  }
+  },
 );
 
 // ---------------------------------------------------------------
