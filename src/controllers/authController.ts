@@ -14,13 +14,13 @@ import { AppError } from "../utils/errors";
 export async function signup(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
     // 1) Log para confirmar que o signup foi chamado e ver o body que veio
     console.log(
       "🔔 [SIGNUP] Requisição recebida em /signup com body:",
-      req.body
+      req.body,
     );
 
     // 2) Chama o serviço que cria o usuário e retorna { userId, rawToken }
@@ -35,7 +35,7 @@ export async function signup(
       message: "User created. Please check your email to verify your account.",
       userId,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Se for um AppError (erro intencional lançado pelo serviço), devolve o código e mensagem
     if (err instanceof AppError) {
       console.error("❌ [SIGNUP] AppError:", err.code, err.message);
@@ -54,13 +54,13 @@ export async function signup(
 export async function login(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
     const token = await authService.login(req.body);
     res.json({ token });
     return;
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (err instanceof AppError) {
       // Caso seja AppError, devolve status e JSON próprio
       res.status(err.statusCode).json({ code: err.code, message: err.message });
@@ -75,14 +75,25 @@ export async function login(
  * POST /api/auth/social-login
  * (exemplo para login via Firebase)
  */
+interface FirebaseUser {
+  uid: string;
+  email: string;
+  name?: string;
+  picture?: string;
+}
+
+interface RequestWithFirebaseUser extends Request {
+  firebaseUser: FirebaseUser;
+}
+
 export async function socialLogin(
-  req: Request,
+  req: RequestWithFirebaseUser,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
-    const firebaseUser = (req as any).firebaseUser;
-    const { uid, email, name, picture } = firebaseUser;
+    const firebaseUser = req.firebaseUser;
+    const { email, name } = firebaseUser;
 
     const user = await db.user.upsert({
       where: { email },
@@ -99,7 +110,7 @@ export async function socialLogin(
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     res.json({ token });
@@ -115,7 +126,7 @@ export async function socialLogin(
 export async function verifyEmail(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
     const { token } = req.query as { token?: string };
@@ -164,7 +175,7 @@ export async function verifyEmail(
 export async function resendVerification(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
     const { email } = req.body;
@@ -184,7 +195,7 @@ export async function resendVerification(
       message: "Verification email sent again.",
     });
     return;
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (err instanceof AppError) {
       res.status(err.statusCode).json({ code: err.code, message: err.message });
       return;

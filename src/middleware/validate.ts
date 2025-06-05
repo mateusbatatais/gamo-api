@@ -1,5 +1,5 @@
 // src/middleware/validate.ts
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import { RequestHandler } from "express";
 import { AnyZodObject } from "zod";
 
 export const validate =
@@ -12,11 +12,18 @@ export const validate =
         query: req.query,
       });
       next();
-    } catch (err: any) {
-      res.status(400).json({
-        error: "Validação falhou",
-        details: err.errors,
-      });
+    } catch (err: unknown) {
+      if (err && typeof err === "object" && "errors" in err) {
+        res.status(400).json({
+          error: "Validação falhou",
+          details: (err as { errors: unknown }).errors,
+        });
+      } else {
+        res.status(400).json({
+          error: "Validação falhou",
+          details: err,
+        });
+      }
       return;
     }
   };

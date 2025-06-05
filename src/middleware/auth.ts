@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 
 interface JwtPayload {
@@ -16,6 +16,7 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
   const token = authHeader.split(" ")[1];
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (req as any).user = { id: payload.userId };
     next(); // segue adiante
   } catch {

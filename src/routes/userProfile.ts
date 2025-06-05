@@ -10,6 +10,7 @@ router.get(
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const userId = (req as any).user.id;
       const user = await db.user.findUnique({
         where: { id: userId },
@@ -23,7 +24,7 @@ router.get(
     } catch (err) {
       next(err);
     }
-  }
+  },
 );
 
 export default router;

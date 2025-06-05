@@ -1,12 +1,16 @@
 // tests/controllers/userConsoleController.spec.ts
 import request from "supertest";
 import express, { Request, Response, NextFunction } from "express";
-import userConsolesRouter from "../../src/routes/userConsoles";
+
+// Define a custom type for the request with a 'user' property
+interface RequestWithUser extends Request {
+  user?: { id: number };
+}
 
 // Mock do middleware com tipagens corretas
 jest.mock("../../src/middleware/auth", () => ({
-  authMiddleware: (req: Request, res: Response, next: NextFunction) => {
-    (req as any).user = { id: 42 };
+  authMiddleware: (req: RequestWithUser, res: Response, next: NextFunction) => {
+    req.user = { id: 42 };
     next();
   },
 }));
