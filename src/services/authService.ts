@@ -1,5 +1,4 @@
 // src/services/authService.ts
-
 import { db } from "../lib/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -17,6 +16,15 @@ export interface LoginInput {
   password: string;
 }
 
+export interface RecoverInput {
+  email: string;
+}
+
+export interface ResetPasswordInput {
+  token: string;
+  newPassword: string;
+}
+
 // Tempo de expiração do JWT
 const TOKEN_EXPIRES_IN = "7d";
 
@@ -27,22 +35,19 @@ function signToken(userId: number): string {
   });
 }
 
-// Gera um token de verificação de e-mail e a data de expiração (24h)
-function generateEmailToken() {
+// Gera um token aleatório com data de expiração em milissegundos
+function generateTokenWithExpiry(expireMs: number): { rawToken: string; expires: Date } {
   const rawToken = crypto.randomBytes(32).toString("hex");
-  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+  const expires = new Date(Date.now() + expireMs);
   return { rawToken, expires };
 }
 
 /**
  * Cria um novo usuário e retorna { userId, rawToken } para verificação de e-mail.
- * Em vez de retornar JWT, gera token de confirmação e salva no banco.
  * @throws AppError(400, "MISSING_FIELDS", ...)  se faltar algum campo
  * @throws AppError(409, "USER_ALREADY_EXISTS", ...) se o e-mail já existir
  */
-export async function signup(
-  input: SignupInput
-): Promise<{ userId: number; rawToken: string }> {
+export async function signup(input: SignupInput): Promise<{ userId: number; rawToken: string }> {
   const { name, email, password } = input;
   if (!name || !email || !password) {
     throw new AppError(400, "MISSING_FIELDS", "Missing fields");
@@ -56,7 +61,7 @@ export async function signup(
 
   // Hash da senha
   const hash = await bcrypt.hash(password, 10);
-  const { rawToken, expires } = generateEmailToken();
+  const { rawToken, expires } = generateTokenWithExpiry(24 * 60 * 60 * 1000); // 24h
 
   // Cria usuário com campos de verificação de e-mail
   const user = await db.user.create({
@@ -131,7 +136,7 @@ export async function resendVerificationToken({
   }
 
   // Gera novo token e expiração
-  const { rawToken, expires } = generateEmailToken();
+  const { rawToken, expires } = generateTokenWithExpiry(24 * 60 * 60 * 1000); // 24h
 
   // Atualiza no banco
   await db.user.update({
@@ -143,4 +148,70 @@ export async function resendVerificationToken({
   });
 
   return { rawToken };
+}
+
+/**
+ * Gera um token de recuperação de senha e salva no BD.
+ * @throws AppError(404, "USER_NOT_FOUND", ...) se usuário não existir
+ * @throws AppError(400, "EMAIL_NOT_VERIFIED", ...) se e-mail não estiver confirmado
+ */
+export async function createPasswordResetToken({
+  email,
+}: RecoverInput): Promise<{ rawToken: string }> {
+  const user = await db.user.findUnique({ where: { email } });
+  if (!user) {
+    throw new AppError(404, "USER_NOT_FOUND", "User not found");
+  }
+  if (!user.emailVerified) {
+    // Se quiser permitir recuperar antes de confirmar e-mail, remova este bloco
+    throw new AppError(400, "EMAIL_NOT_VERIFIED", "Email not verified");
+  }
+
+  // Token válido por 1 hora (60min * 60s * 1000ms)
+  const { rawToken, expires } = generateTokenWithExpiry(60 * 60 * 1000);
+
+  await db.user.update({
+    where: { email },
+    data: {
+      passwordResetToken: rawToken,
+      passwordResetTokenExpires: expires,
+    },
+  });
+
+  return { rawToken };
+}
+
+/**
+ * Redefine password a partir do token válido.
+ * @throws AppError(400, "MISSING_FIELDS", ...) se faltar token ou newPassword
+ * @throws AppError(400, "INVALID_OR_EXPIRED_TOKEN", ...) se token inválido ou expirado
+ */
+export async function resetPassword({ token, newPassword }: ResetPasswordInput): Promise<void> {
+  if (!token || !newPassword) {
+    throw new AppError(400, "MISSING_FIELDS", "Missing token or new password");
+  }
+
+  // Encontra usuário com este token válido (não expirado)
+  const user = await db.user.findFirst({
+    where: {
+      passwordResetToken: token,
+      passwordResetTokenExpires: { gt: new Date() },
+    },
+  });
+  if (!user) {
+    throw new AppError(400, "INVALID_OR_EXPIRED_TOKEN", "Invalid or expired token");
+  }
+
+  // Faz hash da nova senha
+  const hash = await bcrypt.hash(newPassword, 10);
+
+  // Atualiza no BD: nova senha + limpa token
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      password: hash,
+      passwordResetToken: null,
+      passwordResetTokenExpires: null,
+    },
+  });
 }

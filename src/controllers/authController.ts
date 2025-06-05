@@ -1,10 +1,8 @@
-// src/controllers/authController.ts
-
 import { Request, Response, NextFunction } from "express";
 import * as authService from "../services/authService";
 import { db } from "../lib/db";
 import jwt from "jsonwebtoken";
-import { sendVerificationEmail } from "../utils/email";
+import { sendVerificationEmail, sendRecoveryEmail } from "../utils/email";
 import { AppError } from "../utils/errors";
 import { DecodedIdToken } from "firebase-admin/auth";
 
@@ -56,19 +54,16 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
 /**
  * POST /api/auth/social-login
  * (exemplo para login via Firebase)
- *
- * Note que aqui alteramos para receber `req: Request` genérico e
- * somente dentro do corpo fazemos o cast para `RequestWithFirebaseUser`.
  */
-export async function socialLogin(req: Request, res: Response, next: NextFunction) {
+export async function socialLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    // 1) Fazemos o cast interno para recuperar `firebaseUser`
+    // Fazemos cast interno para recuperar `firebaseUser`
     interface RequestWithFirebaseUser extends Request {
       firebaseUser: DecodedIdToken;
     }
     const typedReq = req as RequestWithFirebaseUser;
 
-    // 2) Pega os dados do usuário já “injetados” pelo middleware
+    // Pega dados do Firebase (injetado pelo middleware)
     const firebaseUser = typedReq.firebaseUser;
     const { email, name } = firebaseUser;
 
@@ -79,7 +74,7 @@ export async function socialLogin(req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    // 3) Upserta (inserir ou atualizar) o usuário no banco
+    // Upsert no banco
     const user = await db.user.upsert({
       where: { email },
       update: {},
@@ -88,14 +83,18 @@ export async function socialLogin(req: Request, res: Response, next: NextFunctio
         email,
         password: null,
         role: "NORMAL",
-        emailVerified: true, // para social-login, já consideramos verificado
+        emailVerified: true, // para social-login, já é verificado
       },
     });
 
-    // 4) Gera JWT baseado no usuário criado/recuperado
-    const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!, {
-      expiresIn: "7d",
-    });
+    // Gera JWT
+    const token = jwt.sign(
+      { userId: user.id, role: user.role, email: user.email },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "7d",
+      },
+    );
 
     res.json({ token });
   } catch (err) {
@@ -148,26 +147,93 @@ export async function verifyEmail(req: Request, res: Response, next: NextFunctio
   }
 }
 
+/**
+ * POST /api/auth/resend-verification
+ * Reenvia token de verificação de e-mail para o usuário.
+ */
 export async function resendVerification(
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { email } = req.body;
+    const { email, locale } = req.body as { email?: string; locale?: string };
     if (!email) {
       res.status(400).json({ code: "MISSING_FIELDS", message: "Email is required" });
       return;
     }
-
     const { rawToken } = await authService.resendVerificationToken({ email });
-    await sendVerificationEmail(email, rawToken);
+    await sendVerificationEmail(email, rawToken, locale);
 
     res.json({
       code: "RESEND_SUCCESS",
       message: "Verification email sent again.",
     });
     return;
+  } catch (err: unknown) {
+    if (err instanceof AppError) {
+      res.status(err.statusCode).json({ code: err.code, message: err.message });
+      return;
+    }
+    next(err);
+  }
+}
+
+/**
+ * POST /api/auth/recover
+ * Recebe { email }, gera token de recuperação e envia e-mail com link.
+ */
+export async function recoverPassword(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { email, locale } = req.body as { email?: string; locale?: string };
+    if (!email) {
+      res.status(400).json({ code: "MISSING_FIELDS", message: "Email is required" });
+      return;
+    }
+
+    // Gera token de recuperação
+    const { rawToken } = await authService.createPasswordResetToken({ email });
+
+    // Monta a URL que o usuário clicará para redefinir a senha
+    const frontendUrl = process.env.FRONTEND_URL!; // ex: "https://gamo.games"
+    const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
+
+    // Envia o e-mail de recuperação
+    await sendRecoveryEmail(email, resetLink, locale);
+
+    res.json({
+      code: "RECOVERY_EMAIL_SENT",
+      message: "Recovery email sent.",
+    });
+  } catch (err: unknown) {
+    if (err instanceof AppError) {
+      res.status(err.statusCode).json({ code: err.code, message: err.message });
+      return;
+    }
+    next(err);
+  }
+}
+
+/**
+ * POST /api/auth/reset-password
+ * Recebe { token, newPassword }, valida e redefine a senha.
+ */
+export async function resetPasswordController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { token, newPassword } = req.body;
+    await authService.resetPassword({ token, newPassword });
+    res.json({
+      code: "PASSWORD_RESET_SUCCESS",
+      message: "Password reset successfully.",
+    });
   } catch (err: unknown) {
     if (err instanceof AppError) {
       res.status(err.statusCode).json({ code: err.code, message: err.message });

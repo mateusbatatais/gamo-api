@@ -1,0 +1,12 @@
+{
+  "email": {
+    "verify": {
+      "subject": "Verify your email",
+      "body": "Click the link to verify your email: <a href=\"{link}\">Verify</a>"
+    },
+    "recover": {
+      "subject": "Reset your password",
+      "body": "Click the link to reset your password: <a href=\"{link}\">Reset</a>"
+    }
+  }
+}
