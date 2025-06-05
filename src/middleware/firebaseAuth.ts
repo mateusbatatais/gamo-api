@@ -1,24 +1,31 @@
 // src/middleware/firebaseAuth.ts
-import { RequestHandler } from "express";
+import { Request, RequestHandler } from "express";
 import { firebaseAuth } from "../utils/firebase";
 
-export const firebaseAuthMiddleware: RequestHandler = async (
-  req,
-  res,
-  next,
-) => {
+// 1) Declaramos aqui a interface que “estende” Request com nosso campo extra:
+import { DecodedIdToken } from "firebase-admin/auth";
+
+interface RequestWithFirebaseUser extends Request {
+  firebaseUser: DecodedIdToken;
+}
+
+// 2) Mantemos a assinatura como RequestHandler para que o Express reconheça sem problemas:
+export const firebaseAuthMiddleware: RequestHandler = async (req, res, next) => {
+  // 3) Fazemos o “cast” para a interface que tem firebaseUser:
+  const typedReq = req as RequestWithFirebaseUser;
+
   const header = req.headers.authorization;
   if (!header?.startsWith("Bearer ")) {
     res.status(401).json({ error: "ID token não fornecido" });
-    return; // apenas retorno vazio
+    return;
   }
 
   const idToken = header.split(" ")[1];
   try {
+    // 4) Verifica o token no Firebase e atribui decoded em typedReq.firebaseUser
     const decoded = await firebaseAuth.verifyIdToken(idToken);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (req as any).firebaseUser = decoded;
-    next();
+    typedReq.firebaseUser = decoded;
+    return next();
   } catch {
     res.status(401).json({ error: "Token Firebase inválido" });
     return;

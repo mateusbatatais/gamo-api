@@ -6,67 +6,49 @@ import { db } from "../lib/db";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../utils/email";
 import { AppError } from "../utils/errors";
+import { DecodedIdToken } from "firebase-admin/auth";
 
 /**
  * POST /api/auth/signup
  * Cria usuário, envia e-mail de verificação e retorna JSON de sucesso.
  */
-export async function signup(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function signup(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    // 1) Log para confirmar que o signup foi chamado e ver o body que veio
-    console.log(
-      "🔔 [SIGNUP] Requisição recebida em /signup com body:",
-      req.body,
-    );
+    console.log("🔔 [SIGNUP] Requisição recebida em /signup com body:", req.body);
 
-    // 2) Chama o serviço que cria o usuário e retorna { userId, rawToken }
     const { userId, rawToken } = await authService.signup(req.body);
-
-    // 3) Envia o e-mail de verificação
     await sendVerificationEmail(req.body.email as string, rawToken);
 
-    // 4) Retorna sucesso ao cliente
     res.status(201).json({
       code: "USER_CREATED",
       message: "User created. Please check your email to verify your account.",
       userId,
     });
   } catch (err: unknown) {
-    // Se for um AppError (erro intencional lançado pelo serviço), devolve o código e mensagem
     if (err instanceof AppError) {
       console.error("❌ [SIGNUP] AppError:", err.code, err.message);
       res.status(err.statusCode).json({ code: err.code, message: err.message });
       return;
     }
-    // Para qualquer outro erro inesperado, log completo e delega ao middleware global
     console.error("❌ [SIGNUP] Erro inesperado:", err);
     next(err);
   }
 }
+
 /**
  * POST /api/auth/login
  * Autentica usuário e retorna { token }, ou erro se inválido/sem verificação.
  */
-export async function login(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const token = await authService.login(req.body);
     res.json({ token });
     return;
   } catch (err: unknown) {
     if (err instanceof AppError) {
-      // Caso seja AppError, devolve status e JSON próprio
       res.status(err.statusCode).json({ code: err.code, message: err.message });
       return;
     }
-    // Qualquer outro erro inesperado:
     next(err);
   }
 }
@@ -74,27 +56,30 @@ export async function login(
 /**
  * POST /api/auth/social-login
  * (exemplo para login via Firebase)
+ *
+ * Note que aqui alteramos para receber `req: Request` genérico e
+ * somente dentro do corpo fazemos o cast para `RequestWithFirebaseUser`.
  */
-interface FirebaseUser {
-  uid: string;
-  email: string;
-  name?: string;
-  picture?: string;
-}
-
-interface RequestWithFirebaseUser extends Request {
-  firebaseUser: FirebaseUser;
-}
-
-export async function socialLogin(
-  req: RequestWithFirebaseUser,
-  res: Response,
-  next: NextFunction,
-) {
+export async function socialLogin(req: Request, res: Response, next: NextFunction) {
   try {
-    const firebaseUser = req.firebaseUser;
+    // 1) Fazemos o cast interno para recuperar `firebaseUser`
+    interface RequestWithFirebaseUser extends Request {
+      firebaseUser: DecodedIdToken;
+    }
+    const typedReq = req as RequestWithFirebaseUser;
+
+    // 2) Pega os dados do usuário já “injetados” pelo middleware
+    const firebaseUser = typedReq.firebaseUser;
     const { email, name } = firebaseUser;
 
+    if (!email) {
+      res
+        .status(400)
+        .json({ code: "NO_EMAIL_IN_TOKEN", message: "Email não encontrado no token do Firebase" });
+      return;
+    }
+
+    // 3) Upserta (inserir ou atualizar) o usuário no banco
     const user = await db.user.upsert({
       where: { email },
       update: {},
@@ -103,15 +88,14 @@ export async function socialLogin(
         email,
         password: null,
         role: "NORMAL",
-        emailVerified: true, // para social-login, marcamos como verificado
+        emailVerified: true, // para social-login, já consideramos verificado
       },
     });
 
-    const token = jwt.sign(
-      { userId: user.id, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" },
-    );
+    // 4) Gera JWT baseado no usuário criado/recuperado
+    const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!, {
+      expiresIn: "7d",
+    });
 
     res.json({ token });
   } catch (err) {
@@ -123,21 +107,14 @@ export async function socialLogin(
  * GET /api/auth/verify-email?token=XYZ
  * Valida token enviado no e-mail e marca emailVerified = true.
  */
-export async function verifyEmail(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function verifyEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { token } = req.query as { token?: string };
     if (!token) {
-      res
-        .status(400)
-        .json({ code: "NO_TOKEN_PROVIDED", message: "No token provided" });
+      res.status(400).json({ code: "NO_TOKEN_PROVIDED", message: "No token provided" });
       return;
     }
 
-    // Procura usuário com token válido e não expirado
     const user = await db.user.findFirst({
       where: {
         emailVerificationToken: token,
@@ -153,7 +130,6 @@ export async function verifyEmail(
       return;
     }
 
-    // Marca e-mail como verificado e limpa campos de token
     await db.user.update({
       where: { id: user.id },
       data: {
@@ -180,13 +156,10 @@ export async function resendVerification(
   try {
     const { email } = req.body;
     if (!email) {
-      res
-        .status(400)
-        .json({ code: "MISSING_FIELDS", message: "Email is required" });
+      res.status(400).json({ code: "MISSING_FIELDS", message: "Email is required" });
       return;
     }
 
-    // Chama a função que existe no service:
     const { rawToken } = await authService.resendVerificationToken({ email });
     await sendVerificationEmail(email, rawToken);
 

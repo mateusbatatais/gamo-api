@@ -1,12 +1,11 @@
-// src/index.ts
 import "dotenv/config";
-import express from "express";
+import express, { ErrorRequestHandler } from "express";
+import cors from "cors";
 import authRouter from "./routes/auth";
 import { authMiddleware } from "./middleware/auth";
 import userConsolesRouter from "./routes/userConsoles";
 import userProfileRouter from "./routes/userProfile";
 import { AppError } from "./utils/errors";
-import cors from "cors";
 
 const app = express();
 
@@ -32,32 +31,29 @@ app.get("/health", (_req, res) => {
 });
 
 // ---------- Middleware global de erro (sempre por último) ----------
-app.use(
-  (
-    err: unknown,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
-  ) => {
-    console.error("[GLOBAL ERROR]", err);
+const errorHandler: ErrorRequestHandler = (err, req, res, next): void => {
+  console.error("[GLOBAL ERROR]", err);
 
-    if (res.headersSent) {
-      return next(err);
-    }
+  if (res.headersSent) {
+    next(err);
+    return;
+  }
 
-    if (err instanceof AppError) {
-      return res
-        .status(err.statusCode)
-        .json({ code: err.code, message: err.message });
-    }
-
-    res.status(500).json({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Internal Server Error",
+  if (err instanceof AppError) {
+    res.status(err.statusCode).json({
+      code: err.code,
+      message: err.message,
     });
-  },
-);
+    return;
+  }
 
+  res.status(500).json({
+    code: "INTERNAL_SERVER_ERROR",
+    message: "Internal Server Error",
+  });
+};
+
+app.use(errorHandler);
 // ---------------------------------------------------------------
 
 const rawPort = process.env.PORT;
