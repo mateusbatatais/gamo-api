@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// ———————– MODELS PRINCIPAIS ———————– ///
+
 model Brand {
   id       Int       @id @default(autoincrement())
   slug     String    @unique
@@ -17,83 +19,77 @@ model Console {
   id          Int              @id @default(autoincrement())
   brandId     Int
   brand       Brand            @relation(fields: [brandId], references: [id])
-  slug        String           @unique // e.g. 'playstation-5'
-  nickname    String           @unique // e.g. 'ps5'
-  name        String // e.g. 'PlayStation 5'
+  slug        String           @unique // ex.: 'playstation-5'
+  nickname    String           @unique // ex.: 'ps5'
+  // name        String           // → removido daqui, agora fica em ConsoleTranslation
+  // description String?          // → removido daqui, agora fica em ConsoleTranslation
+  releaseDate DateTime? // data oficial de lançamento
+  generation  String? // ex.: '8ª geração'
   variants    ConsoleVariant[]
   accessories Accessory[]
   GameEdition GameEdition[]
   UserItem    UserItem[]
   UserConsole UserConsole[]
+
+  // 1:N → Traduções de nome e descrição
+  translations ConsoleTranslation[]
 }
 
 model ConsoleVariant {
-  id          Int           @id @default(autoincrement())
-  name        String
-  slug        String
-  console     Console       @relation(fields: [consoleId], references: [id])
-  consoleId   Int
+  id         Int       @id @default(autoincrement())
+  // name        String        // → removido daqui, agora fica em ConsoleVariantTranslation
+  slug       String
+  console    Console   @relation(fields: [consoleId], references: [id])
+  consoleId  Int
+  // Não migramos a descrição, pois não há campo “description” no seu modelo. Se futuramente adicionar "description" no variant, deve ir para ConsoleVariantTranslation.
+  launchDate DateTime? // data de lançamento dessa variação
+  storage    String? // ex.: '500 GB', '1 TB'
+  imageUrl   String? // foto oficial da variação
+
   Skin        Skin[]
   UserConsole UserConsole[]
+
+  // 1:N → Traduções de nome
+  translations ConsoleVariantTranslation[]
 
   @@unique([consoleId, slug])
 }
 
 model Skin {
-  id               Int               @id @default(autoincrement())
+  id               Int            @id @default(autoincrement())
   consoleVariantId Int
-  consoleVariant   ConsoleVariant    @relation(fields: [consoleVariantId], references: [id])
-  slug             String            @unique // 'midnight-black'
-  translations     SkinTranslation[]
+  consoleVariant   ConsoleVariant @relation(fields: [consoleVariantId], references: [id])
+  slug             String         @unique // ex.: 'midnight-black'
+  // translations     SkinTranslation[] // já existia
   UserConsole      UserConsole[]
-}
 
-model SkinTranslation {
-  id     Int    @id @default(autoincrement())
-  skinId Int
-  skin   Skin   @relation(fields: [skinId], references: [id])
-  locale String // 'pt' ou 'en'
-  name   String // 'Preto Meia-Noite', etc.
+  // Removi o description daqui para movê-lo à SkinTranslation:
+  // description      String?       // texto descritivo → vai para SkinTranslation
+  releaseDate    DateTime? // data de lançamento oficial da skin
+  limitedEdition Boolean? // true se edição limitada/colecionador
+  editionName    String? // nome oficial da edição limitada (→ pode ser multilíngue)
+  material       String? // ex.: 'Plástico ABS', 'Vinil adesivo'
+  finish         String? // ex.: 'Matte', 'Glossy', etc.
+  imageUrl       String? // URL da imagem principal
 
-  @@unique([skinId, locale])
+  // 1:N → Traduções de nome e descrição/editionName
+  translations SkinTranslation[]
 }
 
 model Accessory {
   id           Int                    @id @default(autoincrement())
   consoleId    Int
   console      Console                @relation(fields: [consoleId], references: [id])
-  slug         String                 @unique // 'dualsense-controller'
+  slug         String                 @unique // ex.: 'dualsense-controller'
   translations AccessoryTranslation[]
-}
-
-model AccessoryTranslation {
-  id          Int       @id @default(autoincrement())
-  accessoryId Int
-  accessory   Accessory @relation(fields: [accessoryId], references: [id])
-  locale      String // 'pt' ou 'en'
-  name        String
-  description String?
-
-  @@unique([accessoryId, locale])
 }
 
 model Game {
   id           Int               @id @default(autoincrement())
-  slug         String            @unique // 'spider-man-2'
+  slug         String            @unique // ex.: 'spider-man-2'
   translations GameTranslation[]
   editions     GameEdition[]
   UserItem     UserItem[]
-}
-
-model GameTranslation {
-  id          Int     @id @default(autoincrement())
-  gameId      Int
-  game        Game    @relation(fields: [gameId], references: [id])
-  locale      String // 'pt' ou 'en'
-  title       String
-  description String?
-
-  @@unique([gameId, locale])
 }
 
 model GameEdition {
@@ -163,4 +159,70 @@ enum Role {
   NORMAL
   ADMIN
   SUPER_ADMIN
+}
+
+/// ———————– MODELS DE TRADUÇÃO ———————– ///
+
+model ConsoleTranslation {
+  id          Int     @id @default(autoincrement())
+  consoleId   Int
+  console     Console @relation(fields: [consoleId], references: [id])
+  locale      String // ex.: 'pt', 'en', 'es'
+  name        String // ex.: 'PlayStation 4' ou 'PlayStation Quarta Geração'
+  description String? // descrição em cada idioma
+
+  @@unique([consoleId, locale])
+  @@index([locale])
+}
+
+model ConsoleVariantTranslation {
+  id               Int            @id @default(autoincrement())
+  consoleVariantId Int
+  variant          ConsoleVariant @relation(fields: [consoleVariantId], references: [id])
+  locale           String // ex.: 'pt', 'en'
+  name             String // ex.: 'Slim' ou 'Slim Cortado'
+  // Se no futuro você adicionar um campo “description” a ConsoleVariant, inclua-o aqui:
+  // description      String?
+
+  @@unique([consoleVariantId, locale])
+  @@index([locale])
+}
+
+model SkinTranslation {
+  id          Int     @id @default(autoincrement())
+  skinId      Int
+  skin        Skin    @relation(fields: [skinId], references: [id])
+  locale      String // 'pt' ou 'en'
+  name        String // ex.: 'Preto Meia-Noite', 'Midnight Black'
+  // Removemos o campo "description" de Skin (modelo principal) e adicionamos aqui:
+  description String? // texto descritivo da skin, em cada idioma
+  // Se editionName também precisa ser multilíngue, adicionamos aqui:
+  editionName String? // ex.: 'Edição Limitada Zen', 'Zen Limited Edition'
+
+  @@unique([skinId, locale])
+  @@index([locale])
+}
+
+model AccessoryTranslation {
+  id          Int       @id @default(autoincrement())
+  accessoryId Int
+  accessory   Accessory @relation(fields: [accessoryId], references: [id])
+  locale      String // 'pt' ou 'en'
+  name        String // ex.: 'Controle DualSense', 'DualSense Controller'
+  description String?
+
+  @@unique([accessoryId, locale])
+  @@index([locale])
+}
+
+model GameTranslation {
+  id          Int     @id @default(autoincrement())
+  gameId      Int
+  game        Game    @relation(fields: [gameId], references: [id])
+  locale      String // 'pt' ou 'en'
+  title       String // ex.: 'Homem-Aranha 2', 'Spider-Man 2'
+  description String?
+
+  @@unique([gameId, locale])
+  @@index([locale])
 }

@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 const db = new PrismaClient();
 
 async function main() {
+  // 0. Usuário administrador
   await db.user.upsert({
     where: { email: "admin@gamo.games" },
     update: {},
@@ -29,15 +30,34 @@ async function main() {
     create: { slug: "microsoft" },
   });
 
-  // 2. Consoles com nickname e traduções
+  // 2. Consoles (sem 'name' direto; criamos traduções em ConsoleTranslation)
   const ps5 = await db.console.upsert({
     where: { slug: "playstation-5" },
-    update: {},
+    update: {
+      // Se quiser atualizar algum campo “fixo” em updates futuros, pode colocar aqui
+    },
     create: {
       slug: "playstation-5",
       nickname: "ps5",
       brandId: sony.id,
-      name: "PlayStation 5",
+      releaseDate: new Date("2020-11-12"), // exemplo de data oficial
+      generation: "9ª geração",
+      translations: {
+        create: [
+          {
+            locale: "pt",
+            name: "PlayStation 5",
+            description:
+              "O PlayStation 5 é o console de próxima geração da Sony, lançado em novembro de 2020.",
+          },
+          {
+            locale: "en",
+            name: "PlayStation 5",
+            description:
+              "The PlayStation 5 is Sony’s next-generation console, released in November 2020.",
+          },
+        ],
+      },
     },
   });
 
@@ -48,46 +68,119 @@ async function main() {
       slug: "xbox-series-x",
       nickname: "xboxx",
       brandId: microsoft.id,
-      name: "Xbox Series X",
-    },
-  });
-
-  // 3. Variações do PS5 (com nome)
-  const [slim] = await Promise.all([
-    db.consoleVariant.upsert({
-      where: { consoleId_slug: { consoleId: ps5.id, slug: "fat" } },
-      update: {},
-      create: { name: "Fat", consoleId: ps5.id, slug: "fat" },
-    }),
-    db.consoleVariant.upsert({
-      where: { consoleId_slug: { consoleId: ps5.id, slug: "slim" } },
-      update: {},
-      create: { name: "Slim", consoleId: ps5.id, slug: "slim" },
-    }),
-    db.consoleVariant.upsert({
-      where: { consoleId_slug: { consoleId: ps5.id, slug: "pro" } },
-      update: {},
-      create: { name: "Pro", consoleId: ps5.id, slug: "pro" },
-    }),
-  ]);
-
-  // 4. Skin do PS5 Slim (com traduções)
-  await db.skin.upsert({
-    where: { slug: "midnight-black" },
-    update: {},
-    create: {
-      slug: "midnight-black",
-      consoleVariantId: slim.id,
+      releaseDate: new Date("2020-11-10"), // exemplo de data oficial
+      generation: "9ª geração",
       translations: {
         create: [
-          { locale: "pt", name: "Preto Meia-Noite" },
-          { locale: "en", name: "Midnight Black" },
+          {
+            locale: "pt",
+            name: "Xbox Série X",
+            description:
+              "O Xbox Série X é o console de nova geração da Microsoft, lançado em novembro de 2020.",
+          },
+          {
+            locale: "en",
+            name: "Xbox Series X",
+            description:
+              "The Xbox Series X is Microsoft’s next-generation console, released in November 2020.",
+          },
         ],
       },
     },
   });
 
-  // 5. Acessório PS5
+  // 3. Variações do PS5 (sem 'name' direto; criamos traduções depois)
+  const [ps5Fat, ps5Slim, ps5Pro] = await Promise.all([
+    db.consoleVariant.upsert({
+      where: { consoleId_slug: { consoleId: ps5.id, slug: "fat" } },
+      update: {
+        // atualizações “fixas” de storage, launchDate, etc., se necessário
+      },
+      create: {
+        consoleId: ps5.id,
+        slug: "fat",
+        launchDate: new Date("2020-11-12"), // mesma data de lançamento base
+        storage: "825 GB", // exemplo de armazenamento
+        imageUrl: "https://example.com/images/ps5-fat.png", // URL ilustrativa
+        translations: {
+          create: [
+            { locale: "pt", name: "Modelo Padrão" },
+            { locale: "en", name: "Standard Model" },
+          ],
+        },
+      },
+    }),
+
+    db.consoleVariant.upsert({
+      where: { consoleId_slug: { consoleId: ps5.id, slug: "slim" } },
+      update: {},
+      create: {
+        consoleId: ps5.id,
+        slug: "slim",
+        launchDate: new Date("2023-09-01"), // exemplo fictício
+        storage: "1 TB",
+        imageUrl: "https://example.com/images/ps5-slim.png",
+        translations: {
+          create: [
+            { locale: "pt", name: "Slim" },
+            { locale: "en", name: "Slim" },
+          ],
+        },
+      },
+    }),
+
+    db.consoleVariant.upsert({
+      where: { consoleId_slug: { consoleId: ps5.id, slug: "pro" } },
+      update: {},
+      create: {
+        consoleId: ps5.id,
+        slug: "pro",
+        launchDate: new Date("2022-04-15"), // exemplo fictício
+        storage: "2 TB",
+        imageUrl: "https://example.com/images/ps5-pro.png",
+        translations: {
+          create: [
+            { locale: "pt", name: "Pro" },
+            { locale: "en", name: "Pro" },
+          ],
+        },
+      },
+    }),
+  ]);
+
+  // 4. Skin do PS5 Slim (agora armazenamos 'name', 'description' e 'editionName' em SkinTranslation)
+  await db.skin.upsert({
+    where: { slug: "midnight-black" },
+    update: {},
+    create: {
+      slug: "midnight-black",
+      consoleVariantId: ps5Slim.id,
+      releaseDate: new Date("2023-09-01"), // data fictícia de lançamento da skin
+      limitedEdition: false,
+      editionName: null, // como não é edição limitada, deixamos null
+      material: "Plástico ABS",
+      finish: "Matte",
+      imageUrl: "https://example.com/images/skin-midnight-black.png",
+      translations: {
+        create: [
+          {
+            locale: "pt",
+            name: "Preto Meia-Noite",
+            description: "Skin preta fosca para PS5 Slim, com detalhes em azul escuro.",
+            editionName: null,
+          },
+          {
+            locale: "en",
+            name: "Midnight Black",
+            description: "Matte black skin for PS5 Slim, featuring dark blue accents.",
+            editionName: null,
+          },
+        ],
+      },
+    },
+  });
+
+  // 5. Acessório PS5 (continua tudo igual, pois já tinha tradução correta)
   await db.accessory.upsert({
     where: { slug: "dualsense-controller" },
     update: {},
@@ -99,19 +192,19 @@ async function main() {
           {
             locale: "pt",
             name: "Controle DualSense",
-            description: "Controle oficial do PS5",
+            description: "Controle oficial do PS5 com feedback háptico.",
           },
           {
             locale: "en",
             name: "DualSense Controller",
-            description: "Official PS5 controller",
+            description: "Official PS5 controller with haptic feedback.",
           },
         ],
       },
     },
   });
 
-  // 6. Jogo e edições por console
+  // 6. Jogo e GameEdition (sem alterações, pois já estavam corretos)
   const sm2 = await db.game.upsert({
     where: { slug: "spider-man-2" },
     update: {},
@@ -119,8 +212,8 @@ async function main() {
       slug: "spider-man-2",
       translations: {
         create: [
-          { locale: "pt", title: "Homem-Aranha 2" },
-          { locale: "en", title: "Spider-Man 2" },
+          { locale: "pt", title: "Homem-Aranha 2", description: null },
+          { locale: "en", title: "Spider-Man 2", description: null },
         ],
       },
     },
@@ -130,12 +223,14 @@ async function main() {
     db.gameEdition.upsert({
       where: { gameId_consoleId: { gameId: sm2.id, consoleId: ps5.id } },
       update: {},
-      create: { gameId: sm2.id, consoleId: ps5.id },
+      create: { gameId: sm2.id, consoleId: ps5.id, coverUrl: null },
     }),
     db.gameEdition.upsert({
-      where: { gameId_consoleId: { gameId: sm2.id, consoleId: xboxX.id } },
+      where: {
+        gameId_consoleId: { gameId: sm2.id, consoleId: xboxX.id },
+      },
       update: {},
-      create: { gameId: sm2.id, consoleId: xboxX.id },
+      create: { gameId: sm2.id, consoleId: xboxX.id, coverUrl: null },
     }),
   ]);
 
