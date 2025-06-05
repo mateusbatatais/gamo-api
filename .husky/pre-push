@@ -1,1 +1,1 @@
-npm run test && npm run lint
+pnpm run test && pnpm run lint
