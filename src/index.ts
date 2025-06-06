@@ -1,3 +1,5 @@
+// src/index.ts
+
 import "dotenv/config";
 import express, { ErrorRequestHandler } from "express";
 import cors from "cors";
@@ -9,6 +11,11 @@ import { AppError } from "./utils/errors";
 
 const app = express();
 
+// ---------------------------------------------------------------
+// 1. Middlewares globais
+// ---------------------------------------------------------------
+
+// 1.1. CORS
 app.use(
   cors({
     origin: true,
@@ -18,19 +25,43 @@ app.use(
   }),
 );
 
+// 1.2. Parser de JSON
 app.use(express.json());
 
-// Rotas principais
+// ---------------------------------------------------------------
+// 2. Rotas públicas
+// ---------------------------------------------------------------
+
+// 2.1. Autenticação (signup, login, recover, etc.) – não requer token
 app.use("/api/auth", authRouter);
+
+// ---------------------------------------------------------------
+// 3. Rotas protegidas (precisam de token JWT válido)
+// ---------------------------------------------------------------
+
+// 3.1. Perfil do usuário
+//    Dentro de userProfileRouter, cada endpoint já aplica authMiddleware.
 app.use("/api/user", userProfileRouter);
+
+// 3.2. Consoles do usuário
+//    Aqui deixamos explícito que todas as rotas em /api/user/consoles devem passar pelo authMiddleware.
 app.use("/api/user/consoles", authMiddleware, userConsolesRouter);
 
-// Health check
+// ---------------------------------------------------------------
+// 4. Health check
+// ---------------------------------------------------------------
+
 app.get("/health", (_req, res) => {
-  res.json({ status: "ok", time: new Date().toISOString() });
+  res.json({
+    status: "ok",
+    time: new Date().toISOString(),
+  });
 });
 
-// ---------- Middleware global de erro (sempre por último) ----------
+// ---------------------------------------------------------------
+// 5. Middleware global de tratamento de erro (sempre por último)
+// ---------------------------------------------------------------
+
 const errorHandler: ErrorRequestHandler = (err, req, res, next): void => {
   console.error("[GLOBAL ERROR]", err);
 
@@ -54,6 +85,9 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next): void => {
 };
 
 app.use(errorHandler);
+
+// ---------------------------------------------------------------
+// 6. Inicialização do servidor
 // ---------------------------------------------------------------
 
 const rawPort = process.env.PORT;
@@ -61,6 +95,7 @@ if (!rawPort) {
   console.error("❌ PORT não definida!");
   process.exit(1);
 }
+
 const PORT = Number(rawPort);
 
 app.listen(PORT, "0.0.0.0", () => {

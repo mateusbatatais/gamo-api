@@ -108,6 +108,7 @@ model User {
   name                          String
   email                         String        @unique
   password                      String?
+  description                   String?
   items                         UserItem[]
   UserConsole                   UserConsole[]
   role                          Role          @default(NORMAL)
