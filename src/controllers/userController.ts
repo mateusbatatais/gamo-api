@@ -1,19 +1,12 @@
 // src/controllers/userController.ts
-
 import { Request, Response, NextFunction } from "express";
 import * as userService from "../services/userService";
 import { AppError } from "../utils/errors";
 
-// Interface para tipar req.user (injetado pelo authMiddleware)
 interface RequestWithUser extends Request {
-  user: {
-    id: number;
-  };
+  user: { id: number };
 }
 
-/**
- * GET /api/user/profile
- */
 export async function getProfileController(
   req: Request,
   res: Response,
@@ -21,26 +14,17 @@ export async function getProfileController(
 ): Promise<void> {
   try {
     const { user } = req as RequestWithUser;
-    const userId = user.id;
-
-    const found = await userService.getUserById(userId);
+    const found = await userService.getUserById(user.id);
     res.json(found);
-    return;
   } catch (err: unknown) {
     if (err instanceof AppError) {
-      res.status(err.statusCode).json({
-        code: err.code,
-        message: err.message,
-      });
+      res.status(err.statusCode).json({ code: err.code, message: err.message });
       return;
     }
     next(err);
   }
 }
 
-/**
- * PUT /api/user/profile
- */
 export async function updateProfileController(
   req: Request,
   res: Response,
@@ -48,24 +32,23 @@ export async function updateProfileController(
 ): Promise<void> {
   try {
     const { user } = req as RequestWithUser;
-    const userId = user.id;
-
-    const { name, email, description } = req.body as {
+    const { name, email, description, profileImage } = req.body as {
       name?: string;
       email?: string;
       description?: string;
+      profileImage?: string;
     };
 
-    // Validação básica
     if (!name || !email) {
       throw new AppError(400, "MISSING_FIELDS", "Campos 'name' e 'email' são obrigatórios");
     }
 
     const updatedUser = await userService.updateProfile({
-      userId,
+      userId: user.id,
       name,
       email,
       description: description ?? null,
+      profileImage,
     });
 
     res.json({
@@ -73,22 +56,15 @@ export async function updateProfileController(
       message: "Perfil atualizado com sucesso.",
       user: updatedUser,
     });
-    return;
   } catch (err: unknown) {
     if (err instanceof AppError) {
-      res.status(err.statusCode).json({
-        code: err.code,
-        message: err.message,
-      });
+      res.status(err.statusCode).json({ code: err.code, message: err.message });
       return;
     }
     next(err);
   }
 }
 
-/**
- * PUT /api/user/profile/password
- */
 export async function changePasswordController(
   req: Request,
   res: Response,
@@ -96,15 +72,12 @@ export async function changePasswordController(
 ): Promise<void> {
   try {
     const { user } = req as RequestWithUser;
-    const userId = user.id;
-
     const { currentPassword, newPassword, confirmNewPassword } = req.body as {
       currentPassword?: string;
       newPassword?: string;
       confirmNewPassword?: string;
     };
 
-    // Validações básicas
     if (!currentPassword || !newPassword || !confirmNewPassword) {
       throw new AppError(
         400,
@@ -117,22 +90,15 @@ export async function changePasswordController(
     }
 
     await userService.changePassword({
-      userId,
+      userId: user.id,
       currentPassword,
       newPassword,
     });
 
-    res.json({
-      code: "PASSWORD_CHANGED",
-      message: "Senha alterada com sucesso.",
-    });
-    return;
+    res.json({ code: "PASSWORD_CHANGED", message: "Senha alterada com sucesso." });
   } catch (err: unknown) {
     if (err instanceof AppError) {
-      res.status(err.statusCode).json({
-        code: err.code,
-        message: err.message,
-      });
+      res.status(err.statusCode).json({ code: err.code, message: err.message });
       return;
     }
     next(err);

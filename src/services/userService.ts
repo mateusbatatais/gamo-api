@@ -9,6 +9,7 @@ export interface UpdateProfileInput {
   name: string;
   email: string;
   description?: string | null;
+  profileImage?: string; // ← incluído
 }
 
 export interface ChangePasswordInput {
@@ -26,6 +27,7 @@ export async function getUserById(userId: number) {
       email: true,
       description: true,
       role: true,
+      profileImage: true,
     },
   });
 
@@ -37,36 +39,39 @@ export async function getUserById(userId: number) {
 }
 
 export async function updateProfile(input: UpdateProfileInput) {
-  const { userId, name, email, description } = input;
+  console.log("🔧 [userService.updateProfile] input:", input);
 
-  // Verifica se existe outro usuário com o mesmo e-mail
+  const { userId, name, email, description, profileImage } = input;
+
+  // checa e-mail duplicado se mudou
   const existing = await db.user.findFirst({
-    where: {
-      email,
-      NOT: { id: userId },
-    },
+    where: { email, NOT: { id: userId } },
   });
   if (existing) {
     throw new AppError(400, "EMAIL_IN_USE", "Esse e-mail já está em uso");
   }
 
-  // Atualiza o usuário
+  // monta apenas os campos a atualizar
+  const dataToUpdate: Record<string, unknown> = {};
+  dataToUpdate.name = name;
+  dataToUpdate.email = email;
+  if (description !== undefined) dataToUpdate.description = description;
+  if (profileImage !== undefined) dataToUpdate.profileImage = profileImage;
+
   const updatedUser = await db.user.update({
     where: { id: userId },
-    data: {
-      name,
-      email,
-      description: description ?? null,
-    },
+    data: dataToUpdate,
     select: {
       id: true,
       name: true,
       email: true,
       description: true,
       role: true,
+      profileImage: true, // <-- importante retornar
     },
   });
 
+  console.log("🔧 [userService.updateProfile] result:", updatedUser);
   return updatedUser;
 }
 

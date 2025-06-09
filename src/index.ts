@@ -8,6 +8,7 @@ import { authMiddleware } from "./middleware/auth";
 import userConsolesRouter from "./routes/userConsoles";
 import userProfileRouter from "./routes/userProfile";
 import { AppError } from "./utils/errors";
+import uploadRoutes from "./routes/uploadRoutes";
 
 const app = express();
 
@@ -46,6 +47,8 @@ app.use("/api/user", userProfileRouter);
 // 3.2. Consoles do usuário
 //    Aqui deixamos explícito que todas as rotas em /api/user/consoles devem passar pelo authMiddleware.
 app.use("/api/user/consoles", authMiddleware, userConsolesRouter);
+
+app.use("/api/uploads", uploadRoutes);
 
 // ---------------------------------------------------------------
 // 4. Health check
