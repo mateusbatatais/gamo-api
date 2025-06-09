@@ -39,6 +39,7 @@ describe("userService", () => {
         email: "alice@example.com",
         description: "Bio",
         role: "NORMAL",
+        profileImage: null,
       };
       (db.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
@@ -46,7 +47,14 @@ describe("userService", () => {
       expect(result).toEqual(mockUser);
       expect(db.user.findUnique).toHaveBeenCalledWith({
         where: { id: userId },
-        select: { id: true, name: true, email: true, description: true, role: true },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          description: true,
+          profileImage: true,
+          role: true,
+        },
       });
     });
 
@@ -65,6 +73,7 @@ describe("userService", () => {
       name: "Bob",
       email: "bob@example.com",
       description: "New bio",
+      profileImage: null,
     };
 
     it("atualiza com sucesso quando e-mail livre", async () => {
@@ -75,6 +84,7 @@ describe("userService", () => {
         email: input.email,
         description: input.description,
         role: "NORMAL",
+        profileImage: input.profileImage,
       };
       (db.user.update as jest.Mock).mockResolvedValue(updated);
 
@@ -85,8 +95,20 @@ describe("userService", () => {
       });
       expect(db.user.update).toHaveBeenCalledWith({
         where: { id: userId },
-        data: { name: input.name, email: input.email, description: input.description },
-        select: { id: true, name: true, email: true, description: true, role: true },
+        data: {
+          name: input.name,
+          email: input.email,
+          description: input.description,
+          profileImage: input.profileImage, // added
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          description: true,
+          profileImage: true,
+          role: true,
+        },
       });
     });
 
@@ -107,11 +129,9 @@ describe("userService", () => {
     };
 
     it("lança INVALID_CREDENTIALS se usuário não encontrado ou sem senha", async () => {
-      // sem usuário
       (db.user.findUnique as jest.Mock).mockResolvedValue(null);
       await expect(changePassword(inputs)).rejects.toMatchObject({ code: "INVALID_CREDENTIALS" });
 
-      // usuário sem password
       (db.user.findUnique as jest.Mock).mockResolvedValue({ password: null });
       await expect(changePassword(inputs)).rejects.toMatchObject({ code: "INVALID_CREDENTIALS" });
     });

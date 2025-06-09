@@ -40,6 +40,7 @@ describe("userController", () => {
         email: "john@example.com",
         description: null,
         role: Role.NORMAL,
+        profileImage: null, // include profileImage
       };
       jest.spyOn(userService, "getUserById").mockResolvedValue(fakeUser);
 
@@ -75,7 +76,7 @@ describe("userController", () => {
     const baseReq = { user: { id: 42 } } as ReqWithUser;
 
     it("updates profile on success", async () => {
-      const body = { name: "Jane", email: "jane@x.com", description: "bio" };
+      const body = { name: "Jane", email: "jane@x.com", description: "bio", profileImage: "url" };
       const req = { ...baseReq, body } as ReqWithBody<typeof body>;
       const updated = {
         id: 42,
@@ -83,6 +84,7 @@ describe("userController", () => {
         email: body.email,
         description: body.description,
         role: Role.NORMAL,
+        profileImage: body.profileImage, // include profileImage
       };
       jest.spyOn(userService, "updateProfile").mockResolvedValue(updated);
 
@@ -93,6 +95,7 @@ describe("userController", () => {
         name: body.name,
         email: body.email,
         description: body.description,
+        profileImage: body.profileImage, // expect profileImage
       });
       expect(res.json).toHaveBeenCalledWith({
         code: "PROFILE_UPDATED",
@@ -102,7 +105,7 @@ describe("userController", () => {
     });
 
     it("throws MISSING_FIELDS on missing inputs", async () => {
-      const body = { name: "", email: "", description: "" };
+      const body = { name: "", email: "", description: "", profileImage: null };
       const req = { ...baseReq, body } as ReqWithBody<typeof body>;
 
       await updateProfileController(req, res as Response, next);
@@ -115,7 +118,7 @@ describe("userController", () => {
     });
 
     it("handles AppError from service", async () => {
-      const body = { name: "A", email: "a@b", description: null };
+      const body = { name: "A", email: "a@b", description: null, profileImage: null };
       const req = { ...baseReq, body } as ReqWithBody<typeof body>;
       const error = new AppError(400, "EMAIL_IN_USE", "in use");
       jest.spyOn(userService, "updateProfile").mockRejectedValue(error);
@@ -127,7 +130,7 @@ describe("userController", () => {
     });
 
     it("forwards unknown error", async () => {
-      const body = { name: "X", email: "x@y", description: null };
+      const body = { name: "X", email: "x@y", description: null, profileImage: null };
       const req = { ...baseReq, body } as ReqWithBody<typeof body>;
       const error = new Error("fail");
       jest.spyOn(userService, "updateProfile").mockRejectedValue(error);

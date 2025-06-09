@@ -9,7 +9,7 @@ export interface UpdateProfileInput {
   name: string;
   email: string;
   description?: string | null;
-  profileImage?: string; // ← incluído
+  profileImage?: string | null; // ← incluído
 }
 
 export interface ChangePasswordInput {
