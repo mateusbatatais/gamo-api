@@ -90,7 +90,7 @@ async function main() {
   });
 
   // 3. Variações do PS5 (sem 'name' direto; criamos traduções depois)
-  const [ps5Fat, ps5Slim, ps5Pro] = await Promise.all([
+  const [ps5Slim] = await Promise.all([
     db.consoleVariant.upsert({
       where: { consoleId_slug: { consoleId: ps5.id, slug: "fat" } },
       update: {
