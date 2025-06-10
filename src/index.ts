@@ -9,6 +9,7 @@ import userConsolesRouter from "./routes/userConsoles";
 import userProfileRouter from "./routes/userProfile";
 import { AppError } from "./utils/errors";
 import uploadRoutes from "./routes/uploadRoutes";
+import consolesRouter from "./routes/consoles";
 
 const app = express();
 
@@ -35,6 +36,9 @@ app.use(express.json());
 
 // 2.1. Autenticação (signup, login, recover, etc.) – não requer token
 app.use("/api/auth", authRouter);
+
+// 2.2. Consoles (listagem de consoles, variantes, etc.) – não requer token
+app.use("/api/consoles", consolesRouter);
 
 // ---------------------------------------------------------------
 // 3. Rotas protegidas (precisam de token JWT válido)

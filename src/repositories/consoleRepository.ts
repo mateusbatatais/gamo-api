@@ -1,5 +1,25 @@
+// src/repositories/consoleRepository.ts
+
 import { db } from "../lib/db";
-export const findVariantBySlug = (consoleId: number, slug: string) =>
-  db.consoleVariant.findUnique({
-    where: { consoleId_slug: { consoleId, slug } },
+
+export interface ListConsoleVariantsOptions {
+  brandSlug?: string;
+  locale: string;
+  skip: number;
+  take: number;
+}
+
+export const listConsoleVariants = ({ brandSlug, locale }: ListConsoleVariantsOptions) => {
+  return db.consoleVariant.findMany({
+    where: brandSlug ? { console: { brand: { slug: brandSlug } } } : {},
+    include: {
+      console: {
+        select: { id: true, slug: true, brand: { select: { id: true, slug: true } } },
+      },
+      translations: {
+        where: { locale },
+        select: { name: true },
+      },
+    },
   });
+};
