@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction } from "express";
 import * as userService from "../services/userService";
 import { AppError } from "../utils/errors";
+import { createUserProfileSchema, createChangePasswordSchema } from "../validators/user"; // Ajuste para o novo arquivo de validação
 
 interface RequestWithUser extends Request {
   user: { id: number };
@@ -32,22 +33,22 @@ export async function updateProfileController(
 ): Promise<void> {
   try {
     const { user } = req as RequestWithUser;
-    const { name, email, description, profileImage } = req.body as {
-      name?: string;
-      email?: string;
-      description?: string;
-      profileImage?: string;
-    };
-
-    if (!name || !email) {
-      throw new AppError(400, "MISSING_FIELDS", "Campos 'name' e 'email' são obrigatórios");
+    const validatedData = createUserProfileSchema.safeParse(req.body);
+    if (!validatedData.success) {
+      throw new AppError(
+        400,
+        "INVALID_INPUT",
+        validatedData.error.errors.map((e) => e.message).join(", "),
+      );
     }
+
+    const { name, email, description, profileImage } = validatedData.data;
 
     const updatedUser = await userService.updateProfile({
       userId: user.id,
       name,
       email,
-      description: description ?? null,
+      description,
       profileImage,
     });
 
@@ -72,19 +73,19 @@ export async function changePasswordController(
 ): Promise<void> {
   try {
     const { user } = req as RequestWithUser;
-    const { currentPassword, newPassword, confirmNewPassword } = req.body as {
-      currentPassword?: string;
-      newPassword?: string;
-      confirmNewPassword?: string;
-    };
 
-    if (!currentPassword || !newPassword || !confirmNewPassword) {
+    // Validando os dados de entrada com zod
+    const validatedData = createChangePasswordSchema.safeParse(req.body);
+    if (!validatedData.success) {
       throw new AppError(
         400,
-        "MISSING_FIELDS",
-        "É necessário informar 'currentPassword', 'newPassword' e 'confirmNewPassword'",
+        "INVALID_INPUT",
+        validatedData.error.errors.map((e) => e.message).join(", "),
       );
     }
+
+    const { currentPassword, newPassword, confirmNewPassword } = validatedData.data;
+
     if (newPassword !== confirmNewPassword) {
       throw new AppError(400, "PASSWORDS_DO_NOT_MATCH", "As novas senhas não coincidem");
     }
