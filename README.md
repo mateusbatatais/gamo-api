@@ -1,197 +1,129 @@
 # GAMO API
 
-**GAMO API** é o serviço de backend do projeto GAMO, uma plataforma para colecionadores de videogames onde os usuários podem cadastrar suas coleções de consoles, jogos e acessórios, além de classificar, comprar e vender itens.
+API REST para o backend do GAMO — plataforma de cadastro, ranqueamento e negociação de coleções de videogames.
 
 ---
 
-## 📋 Funcionalidades Principais
+## 📁 Estrutura de Pastas
 
-- **Autenticação** via JWT (login, signup e login social via Firebase/Goolge).
-- **Gerenciamento de coleção**: adicionar, listar, editar e remover consoles, jogos e acessórios.
-- **Internacionalização**: suporte aos idiomas português (pt) e inglês (en) para nomes e descrições.
-- **Perfis e autorizações**: papéis de usuário (NORMAL, ADMIN, SUPER_ADMIN).
-- **Estrutura modular** (routes → controllers → services → repositories).
-- **Testes automatizados** com Jest e Supertest.
+```
+prisma/           # Migrations e esquema do Prisma
+public/           # Arquivos estáticos (e.g. uploads de imagens)
+src/
+  controllers/    # Lógica de roteadores HTTP
+  dtos/           # Tipos de entrada/saída (Data Transfer Objects)
+  lib/            # Configurações compartilhadas (ex.: instância do Prisma)
+  middleware/     # Middlewares Express (validação, autenticação)
+  repositories/   # Acesso direto ao banco via Prisma
+  routes/         # Definição de rotas e agrupamento de controllers
+  services/       # Regras de negócio e composição de repositórios
+  utils/          # Funções utilitárias e classes de erro
+  validators/     # Schemas Zod para validação de requests
+src/index.ts     # Ponto de entrada da aplicação
 
----
-
-## 🛠 Tecnologias Utilizadas
-
-| Camada              | Ferramenta              |
-| ------------------- | ----------------------- |
-| Linguagem           | TypeScript              |
-| Framework HTTP      | Express.js              |
-| ORM                 | Prisma (PostgreSQL)     |
-| Validação           | Zod                     |
-| Auth (JWT)          | jsonwebtoken + bcrypt   |
-| Auth Social         | Firebase Admin SDK      |
-| Internacionalização | next-intl (no frontend) |
-| Testes              | Jest, Supertest         |
-| Contêinerização     | Docker                  |
-
----
-
-## 🚀 Estrutura do Projeto
-
-```plaintext
-gamo-api/
-├── prisma/                # Migrations e schema do Prisma
-│   ├── migrations/        # Histórico de alterações do banco
-│   └── schema.prisma      # Definição do modelo de dados
-├── src/
-│   ├── controllers/       # Controllers (tratam req/res)
-│   ├── middleware/        # Middlewares (auth, validate, errorHandler)
-│   ├── repositories/      # Abstração de acesso ao Prisma
-│   ├── routes/            # Definição de rotas HTTP
-│   ├── services/          # Lógica de negócio
-│   ├── utils/             # Helpers genéricos
-│   └── index.ts           # Entry point (configuração Express)
-├── dist/                  # Build JS (gerado pelo tsc)
-│   └── prisma/seed.js     # Seed compilado
-├── Dockerfile             # Configuração multi-stage para deploy
-├── docker-compose.yml     # (opcional) Compose para dev local
-├── package.json           # Scripts e dependências
-├── tsconfig.json          # Configuração do TypeScript
-└── .env.example           # Variáveis de ambiente de exemplo
+tests/            # Suíte de testes (unit e integration)
 ```
 
 ---
 
-## 🔧 Pré-requisitos (Local)
+## ⚙️ Tecnologias e Dependências
 
-- **Node.js** v16+ e npm ou yarn
-- **Docker** e **Docker Compose** (opcional para dev local)
-- **Git**
+- **Node.js + TypeScript**
+- **Express** (v5)
+- **Prisma** ORM (PostgreSQL)
+- **Zod** para validação de schemas
+- **JWT** (`jsonwebtoken`) para autenticação
+- **bcryptjs** para hashing de senhas
+- **Multer** + **Cloudinary** para upload e armazenamento de imagens
+- **Nodemailer** (Mailtrap) para envio de e-mails em sandbox
+- **Firebase Admin** para notificações (se aplicável)
 
-### Setup local
+### Dev Dependencies
 
-1. Clone o repositório:
-
-   ```bash
-   git clone https://github.com/seu-usuario/gamo-api.git
-   cd gamo-api
-   ```
-
-2. Instale dependências:
-
-   ```bash
-   npm install
-   ```
-
-3. Copie e ajuste o arquivo de ambiente:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   Preencha em `.env`:
-
-   ```dotenv
-   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gamo_dev?schema=public
-   JWT_SECRET=sua_chave_super_secreta
-   FIREBASE_SERVICE_ACCOUNT=<chave_base64_do_firebase>
-   PORT=3000
-   ```
-
-4. (Opcional) Inicie o Postgres local com Docker Compose:
-
-   ```bash
-   docker compose up -d
-   ```
-
-5. Gere e aplique migrações + seed:
-
-   ```bash
-   npm run build
-   npm run migrate
-   npm run seed
-   ```
-
-6. Inicie em modo de desenvolvimento:
-
-   ```bash
-   npm run dev
-   ```
-
-7. Acesse `http://localhost:3000/health` para verificar.
+- **pnpm** como gerenciador de pacotes
+- **ESLint** + **Prettier** + **lint-staged** + **Husky** para lint e formatação
+- **Jest** + **Supertest** (`ts-jest`) para testes
+- **ts-node-dev** para desenvolvimento com recarga automática
 
 ---
 
-## ⚙️ Scripts Úteis
+## 🚀 Scripts (via pnpm)
 
-| Script                  | Descrição                                         |
-| ----------------------- | ------------------------------------------------- |
-| `npm run dev`           | Inicia o servidor em modo dev (hot reload)        |
-| `npm run build`         | Compila TypeScript em `dist/`                     |
-| `npm run migrate`       | Aplica as migrations (prisma migrate deploy)      |
-| `npm run seed`          | Popula dados iniciais (dist/prisma/seed.js)       |
-| `npm start`             | Executa `migrate` → `seed` → `node dist/index.js` |
-| `npm run test`          | Roda testes com Jest                              |
-| `npm run prisma:studio` | Abre Prisma Studio                                |
+```jsonc
+{
+  "dev": "ts-node-dev --respawn --transpile-only src/index.ts", // Inicia em modo desenvolvimento
+  "build": "tsc", // Compila TypeScript
+  "migrate": "prisma migrate deploy", // Aplica migrations em production
+  "seed": "pnpm prisma:generate && ts-node-dev prisma/seed.ts", // Popula dados iniciais
+  "start": "pnpm migrate && pnpm seed && node dist/index.js", // Executa migrations, seed e inicia build
 
----
+  "prisma:studio": "prisma studio", // UI do Prisma
+  "prisma:migrate:dev": "prisma migrate dev", // Cria nova migration em dev
+  "prisma:generate": "prisma generate", // Gera client do Prisma
+  "prisma:format": "prisma format", // Formata schema.prisma
+  "prisma:reset": "prisma migrate reset --force", // Reseta banco e reaplica migrations
 
-## 📦 Deploy em Produção (Railway)
-
-1. **Configurar variáveis de ambiente** no dashboard do Railway:
-
-   - `DATABASE_URL` (string de conexão Postgres)
-   - `JWT_SECRET` (mesmo valor do frontend)
-   - `FIREBASE_SERVICE_ACCOUNT` (JSON base64)
-   - `PORT=8080`
-
-2. **Conectar o repositório GitHub** ao serviço Railway e habilitar deploy automático.
-3. **Start Command** no Railway: `npm start`
-4. **Build** e **deploy** usarão o `Dockerfile` multi-stage:
-
-   - **Builder**: instala dependências, gera Prisma Client, compila TS
-   - **Runner**: copia artefatos, aplica migrations/seed, inicia o servidor
-
-5. Após o deploy, verifique nos logs:
-
-   ```
-   > npm run migrate
-   > npm run seed
-   > node dist/index.js
-   Server rodando em 0.0.0.0:8080
-   ```
-
-6. Acesse `https://<seu-projeto>.up.railway.app/health` para validar.
+  "lint": "eslint . --ext .ts,.js", // Executa ESLint
+  "test": "jest --runInBand", // Roda testes
+  "test:watch": "jest --watch", // Modo watch para testes
+  "test:coverage": "jest --coverage", // Relatório de cobertura
+}
+```
 
 ---
 
-## 📚 Endpoints Principais
+## 📋 Variáveis de Ambiente
 
-### Autenticação
+```dotenv
+DATABASE_URL=
+JWT_SECRET=
+FIREBASE_SERVICE_ACCOUNT=
+PORT=
+SMTP_HOST=
+SMTP_PORT=2525
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=
+FRONTEND_URL=
+SENDINBLUE_API_KEY=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
 
-- **GET** `/health` → ping simples
+---
 
-- **POST** `/api/auth/signup`
-  Body: `{ name, email, password }` → retorna `{ token }`
+## 🔧 Configuração Inicial
 
-- **POST** `/api/auth/login`
-  Body: `{ email, password }` → retorna `{ token }`
+1. **Instalar dependências**
 
-- **POST** `/api/auth/social/google`
-  Header: `Authorization: Bearer <ID_TOKEN_GOOGLE>` → retorna `{ token }`
+   ```bash
+   pnpm install
+   ```
 
-### Coleção do Usuário (token JWT obrigatório)
+2. **Gerar client do Prisma**
 
-- **GET** `/api/user/consoles` → lista consoles
-- **POST** `/api/user/consoles` → adiciona console à coleção
+   ```bash
+   pnpm prisma:generate
+   ```
 
-  Body exemplo:
+3. **Rodar migrations** (dev)
 
-  ```json
-  {
-    "consoleId": 1,
-    "variantSlug": "slim",
-    "skinSlug": "midnight-black",
-    "customSkin": "Camo Green",
-    "note": "Comprado em 2024",
-    "photoUrl": "https://..."
-  }
-  ```
+   ```bash
+   pnpm prisma:resume
+   ```
+
+4. **Seed de dados**
+
+   ```bash
+   pnpm seed
+   ```
+
+5. **Iniciar em desenvolvimento**
+
+   ```bash
+   pnpm dev
+   ```
 
 ---
 
