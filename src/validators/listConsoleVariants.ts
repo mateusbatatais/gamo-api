@@ -4,7 +4,9 @@ import { z } from "zod";
 export const listConsoleVariantsSchema = z.object({
   query: z.object({
     brand: z.string().optional(),
-    locale: z.enum(["pt", "en"]).optional(),
+    locale: z.enum(["pt", "en"]).refine((val) => !!val, {
+      message: "Locale é obrigatório",
+    }),
     page: z
       .string()
       .transform((val) => Number(val))
@@ -17,4 +19,5 @@ export const listConsoleVariantsSchema = z.object({
       .optional(),
   }),
 });
+
 export type ListConsoleVariantsDTO = z.infer<typeof listConsoleVariantsSchema>["query"];
