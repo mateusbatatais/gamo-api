@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import httpMocks, { MockResponse } from "node-mocks-http";
+import httpMocks from "node-mocks-http";
 import * as userService from "../../src/services/userService";
 import { AppError } from "../../src/utils/errors";
 import {
@@ -7,24 +7,36 @@ import {
   updateProfileController,
   changePasswordController,
 } from "../../src/controllers/userController";
-
-interface RequestWithUser extends Request {
-  user: { id: number };
-}
+import { MockResponse, MockRequest } from "node-mocks-http";
 
 // Mock the userService module
 jest.mock("../../src/services/userService");
 const mockedUserService = userService as jest.Mocked<typeof userService>;
 
+// Mock the validators to bypass Zod schema in controllers
+jest.mock("../../src/validators/user", () => ({
+  createUserProfileSchema: {
+    safeParse: jest.fn((data: unknown) => ({ success: true, data })),
+  },
+  createChangePasswordSchema: {
+    safeParse: jest.fn((data: unknown) => ({ success: true, data })),
+  },
+}));
+
+type RequestWithUser = Request & { user: { id: number } };
+
 describe("getProfileController", () => {
-  let req: RequestWithUser;
+  let req: MockRequest<RequestWithUser>;
   let res: MockResponse<Response>;
   let next: NextFunction;
 
   beforeEach(() => {
-    req = httpMocks.createRequest<RequestWithUser>({ method: "GET", url: "/profile" });
-    req.user = { id: 42 };
-    res = httpMocks.createResponse();
+    req = httpMocks.createRequest<RequestWithUser>({
+      method: "GET",
+      url: "/profile",
+      user: { id: 42 },
+    });
+    res = httpMocks.createResponse<Response>();
     jest.spyOn(res, "json");
     jest.spyOn(res, "status");
     next = jest.fn();
@@ -74,14 +86,18 @@ describe("getProfileController", () => {
 });
 
 describe("updateProfileController", () => {
-  let req: RequestWithUser;
+  let req: MockRequest<RequestWithUser>;
   let res: MockResponse<Response>;
   let next: NextFunction;
 
   beforeEach(() => {
-    req = httpMocks.createRequest<RequestWithUser>({ method: "PUT", url: "/profile" });
-    req.user = { id: 42 };
-    res = httpMocks.createResponse();
+    req = httpMocks.createRequest<RequestWithUser>({
+      method: "PUT",
+      url: "/profile",
+      user: { id: 42 },
+      body: {},
+    });
+    res = httpMocks.createResponse<Response>();
     jest.spyOn(res, "json");
     jest.spyOn(res, "status");
     next = jest.fn();
@@ -112,26 +128,35 @@ describe("updateProfileController", () => {
     });
   });
 
-  it("should return 400 on invalid input", async () => {
+  it("should return 400 on invalid input after schema mock failure", async () => {
+    const { createUserProfileSchema } = require("../../src/validators/user");
+    (createUserProfileSchema.safeParse as jest.Mock).mockReturnValue({
+      success: false,
+      error: { errors: [{ message: "Invalid" }] },
+    });
     req.body = { email: "bad" };
 
     await updateProfileController(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ code: "INVALID_INPUT" }));
+    expect(res.json).toHaveBeenCalledWith({ code: "INVALID_INPUT", message: "Invalid" });
     expect(next).not.toHaveBeenCalled();
   });
 });
 
 describe("changePasswordController", () => {
-  let req: RequestWithUser;
+  let req: MockRequest<RequestWithUser>;
   let res: MockResponse<Response>;
   let next: NextFunction;
 
   beforeEach(() => {
-    req = httpMocks.createRequest<RequestWithUser>({ method: "POST", url: "/change-password" });
-    req.user = { id: 42 };
-    res = httpMocks.createResponse();
+    req = httpMocks.createRequest<RequestWithUser>({
+      method: "POST",
+      url: "/change-password",
+      user: { id: 42 },
+      body: {},
+    });
+    res = httpMocks.createResponse<Response>();
     jest.spyOn(res, "json");
     jest.spyOn(res, "status");
     next = jest.fn();
@@ -142,15 +167,19 @@ describe("changePasswordController", () => {
   });
 
   it("should change password with matching new passwords", async () => {
-    req.body = { currentPassword: "old", newPassword: "new1", confirmNewPassword: "new1" };
+    req.body = {
+      currentPassword: "oldPass",
+      newPassword: "newPass",
+      confirmNewPassword: "newPass",
+    };
     mockedUserService.changePassword.mockResolvedValue();
 
     await changePasswordController(req, res, next);
 
     expect(mockedUserService.changePassword).toHaveBeenCalledWith({
       userId: 42,
-      currentPassword: "old",
-      newPassword: "new1",
+      currentPassword: "oldPass",
+      newPassword: "newPass",
     });
     expect(res.json).toHaveBeenCalledWith({
       code: "PASSWORD_CHANGED",
@@ -158,9 +187,8 @@ describe("changePasswordController", () => {
     });
   });
 
-  it("should return 400 when new passwords do not match", async () => {
-    req.body = { currentPassword: "old", newPassword: "a", confirmNewPassword: "b" };
-
+  it("should return 400 when new passwords do not match after schema mock success", async () => {
+    req.body = { currentPassword: "oldPass", newPassword: "a", confirmNewPassword: "b" };
     await changePasswordController(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -171,11 +199,17 @@ describe("changePasswordController", () => {
   });
 
   it("should return 400 on invalid input schema", async () => {
+    const { createChangePasswordSchema } = require("../../src/validators/user");
+    (createChangePasswordSchema.safeParse as jest.Mock).mockReturnValue({
+      success: false,
+      error: { errors: [{ message: "InvalidPass" }] },
+    });
     req.body = { foo: "bar" };
 
     await changePasswordController(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ code: "INVALID_INPUT" }));
+    expect(res.json).toHaveBeenCalledWith({ code: "INVALID_INPUT", message: "InvalidPass" });
+    expect(next).not.toHaveBeenCalled();
   });
 });
