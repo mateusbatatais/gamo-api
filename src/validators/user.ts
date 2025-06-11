@@ -15,3 +15,7 @@ export const createChangePasswordSchema = z.object({
     .string()
     .min(6, "A confirmação de nova senha deve ter pelo menos 6 caracteres"),
 });
+
+// Tipos inferidos automaticamente pelo Zod
+export type CreateUserProfileInput = z.infer<typeof createUserProfileSchema>;
+export type CreateChangePasswordInput = z.infer<typeof createChangePasswordSchema>;
