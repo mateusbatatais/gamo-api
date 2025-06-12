@@ -90,7 +90,7 @@ export async function createConsoles() {
       nickname: "ps5",
       brandId: sony.id,
       releaseDate: new Date("2020-11-12"),
-      generation: "9ª geração",
+      generation: 9,
       type: "desktop",
       translations: {
         create: [
@@ -166,7 +166,7 @@ export async function createConsoles() {
       nickname: "xboxx",
       brandId: microsoft.id,
       releaseDate: new Date("2020-11-10"),
-      generation: "9ª geração",
+      generation: 9,
       type: "desktop",
       translations: {
         create: [
@@ -193,7 +193,7 @@ export async function createConsoles() {
       nickname: "xboxseriesS",
       brandId: microsoft.id,
       releaseDate: new Date("2020-11-10"),
-      generation: "9ª geração",
+      generation: 9,
       type: "desktop",
       translations: {
         create: [

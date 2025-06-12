@@ -14,8 +14,12 @@ export const listConsoleVariants = ({
   skip,
   take,
 }: ListConsoleVariantsOptions) => {
+  const brandFilter = brandSlug
+    ? { console: { brand: { slug: { in: brandSlug.split(",") } } } }
+    : {};
+
   return db.consoleVariant.findMany({
-    where: brandSlug ? { console: { brand: { slug: brandSlug } } } : {},
+    where: brandFilter,
     include: {
       console: {
         select: {

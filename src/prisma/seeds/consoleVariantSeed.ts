@@ -34,7 +34,7 @@ export async function createConsoleVariants() {
       slug: "fat",
       launchDate: new Date("1994-12-03"),
       storage: "1 GB",
-      imageUrl: "https://example.com/images/ps1-fat.png",
+      imageUrl: "images/consoles/sony/ps1.webp",
       translations: {
         create: [
           { locale: "pt", name: "Modelo Padrão" },
@@ -52,7 +52,7 @@ export async function createConsoleVariants() {
       slug: "slim",
       launchDate: new Date("1997-09-01"),
       storage: "1 GB",
-      imageUrl: "https://example.com/images/ps1-slim.png",
+      imageUrl: "images/consoles/sony/ps1-slim.webp",
       translations: {
         create: [
           { locale: "pt", name: "Slim" },
@@ -71,7 +71,7 @@ export async function createConsoleVariants() {
       slug: "fat",
       launchDate: new Date("2000-10-26"),
       storage: "40 GB",
-      imageUrl: "https://example.com/images/ps2-fat.png",
+      imageUrl: "images/consoles/sony/ps2.webp",
       translations: {
         create: [
           { locale: "pt", name: "Modelo Padrão" },
@@ -89,7 +89,7 @@ export async function createConsoleVariants() {
       slug: "slim",
       launchDate: new Date("2004-09-01"),
       storage: "120 GB",
-      imageUrl: "https://example.com/images/ps2-slim.png",
+      imageUrl: "images/consoles/sony/ps2-slim.webp",
       translations: {
         create: [
           { locale: "pt", name: "Slim" },
@@ -108,7 +108,7 @@ export async function createConsoleVariants() {
       slug: "fat",
       launchDate: new Date("2006-11-17"),
       storage: "60 GB",
-      imageUrl: "https://example.com/images/ps3-fat.png",
+      imageUrl: "images/consoles/sony/ps3.webp",
       translations: {
         create: [
           { locale: "pt", name: "Modelo Padrão" },
@@ -126,7 +126,7 @@ export async function createConsoleVariants() {
       slug: "slim",
       launchDate: new Date("2009-08-30"),
       storage: "120 GB",
-      imageUrl: "https://example.com/images/ps3-slim.png",
+      imageUrl: "images/consoles/sony/ps3-slim.webp",
       translations: {
         create: [
           { locale: "pt", name: "Slim" },
@@ -145,7 +145,7 @@ export async function createConsoleVariants() {
       slug: "fat",
       launchDate: new Date("2013-11-15"),
       storage: "500 GB",
-      imageUrl: "https://example.com/images/ps4-fat.png",
+      imageUrl: "images/consoles/sony/ps4.webp",
       translations: {
         create: [
           { locale: "pt", name: "Modelo Padrão" },
@@ -163,7 +163,7 @@ export async function createConsoleVariants() {
       slug: "slim",
       launchDate: new Date("2016-09-15"),
       storage: "1 TB",
-      imageUrl: "https://example.com/images/ps4-slim.png",
+      imageUrl: "images/consoles/sony/ps4-slim.webp",
       translations: {
         create: [
           { locale: "pt", name: "Slim" },
@@ -182,7 +182,7 @@ export async function createConsoleVariants() {
       slug: "fat",
       launchDate: new Date("2020-11-12"),
       storage: "825 GB",
-      imageUrl: "https://example.com/images/ps5-fat.png",
+      imageUrl: "images/consoles/sony/ps5.webp",
       translations: {
         create: [
           { locale: "pt", name: "Modelo Padrão" },
@@ -200,7 +200,7 @@ export async function createConsoleVariants() {
       slug: "slim",
       launchDate: new Date("2022-09-01"),
       storage: "1 TB",
-      imageUrl: "https://example.com/images/ps5-slim.png",
+      imageUrl: "images/consoles/sony/ps5-slim.webp",
       translations: {
         create: [
           { locale: "pt", name: "Slim" },
