@@ -34,3 +34,9 @@ export const listConsoleVariants = ({
     take,
   });
 };
+
+export const countConsoleVariants = ({ brandSlug }: ListConsoleVariantsOptions) => {
+  return db.consoleVariant.count({
+    where: brandSlug ? { console: { brand: { slug: brandSlug } } } : {},
+  });
+};

@@ -1,5 +1,5 @@
 // src/services/consoleService.ts
-import { listConsoleVariants } from "../repositories/consoleRepository";
+import { listConsoleVariants, countConsoleVariants } from "../repositories/consoleRepository";
 import { ConsoleVariantsResponse } from "../dtos/consoleVariants.dto";
 
 export const getConsoleVariants = async (options: {
@@ -9,10 +9,12 @@ export const getConsoleVariants = async (options: {
   take: number;
 }): Promise<ConsoleVariantsResponse> => {
   const raw = await listConsoleVariants(options);
-  const total = await listConsoleVariants({
-    ...options,
-    skip: 0,
-    take: 0,
+
+  const total = await countConsoleVariants({
+    brandSlug: options.brandSlug,
+    locale: options.locale,
+    skip: options.skip,
+    take: options.take,
   });
 
   return {
@@ -21,13 +23,13 @@ export const getConsoleVariants = async (options: {
       slug: variant.slug,
       brand: variant.console.brand,
       name: variant.translations[0]?.name || "No Name",
-      consoleName: variant.console.translations[0]?.name || "No Console Name", // Adicionando o nome do console
+      consoleName: variant.console.translations[0]?.name || "No Console Name",
     })),
     meta: {
-      total: total.length,
+      total,
       page: options.skip / options.take + 1,
       perPage: options.take,
-      totalPages: Math.ceil(total.length / options.take),
+      totalPages: total > 0 ? Math.ceil(total / options.take) : 1,
     },
   };
 };
