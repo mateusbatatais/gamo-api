@@ -21,10 +21,9 @@ model Console {
   brand       Brand            @relation(fields: [brandId], references: [id])
   slug        String           @unique // ex.: 'playstation-5'
   nickname    String           @unique // ex.: 'ps5'
-  // name        String           // → removido daqui, agora fica em ConsoleTranslation
-  // description String?          // → removido daqui, agora fica em ConsoleTranslation
   releaseDate DateTime? // data oficial de lançamento
-  generation  String? // ex.: '8ª geração'
+  generation  Int? // Alterado para um número
+  type        String? // Novo campo: desktop, portátil ou híbrido
   variants    ConsoleVariant[]
   accessories Accessory[]
   GameEdition GameEdition[]

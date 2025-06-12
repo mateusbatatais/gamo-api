@@ -14,7 +14,8 @@ export async function createConsoles() {
       nickname: "ps1",
       brandId: sony.id,
       releaseDate: new Date("1994-12-03"),
-      generation: "5ª geração",
+      generation: 5,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "PlayStation 1", description: "Console de 5ª geração da Sony." },
@@ -32,7 +33,8 @@ export async function createConsoles() {
       nickname: "ps2",
       brandId: sony.id,
       releaseDate: new Date("2000-10-26"),
-      generation: "6ª geração",
+      generation: 6,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "PlayStation 2", description: "Console de 6ª geração da Sony." },
@@ -50,7 +52,8 @@ export async function createConsoles() {
       nickname: "ps3",
       brandId: sony.id,
       releaseDate: new Date("2006-11-17"),
-      generation: "7ª geração",
+      generation: 7,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "PlayStation 3", description: "Console de 7ª geração da Sony." },
@@ -68,7 +71,8 @@ export async function createConsoles() {
       nickname: "ps4",
       brandId: sony.id,
       releaseDate: new Date("2013-11-15"),
-      generation: "8ª geração",
+      generation: 7,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "PlayStation 4", description: "Console de 8ª geração da Sony." },
@@ -87,6 +91,7 @@ export async function createConsoles() {
       brandId: sony.id,
       releaseDate: new Date("2020-11-12"),
       generation: "9ª geração",
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "PlayStation 5", description: "Console de 9ª geração da Sony." },
@@ -104,7 +109,8 @@ export async function createConsoles() {
       nickname: "xbox",
       brandId: microsoft.id,
       releaseDate: new Date("2001-11-15"),
-      generation: "6ª geração",
+      generation: 6,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "Xbox", description: "Console de 6ª geração da Microsoft." },
@@ -122,7 +128,8 @@ export async function createConsoles() {
       nickname: "xbox360",
       brandId: microsoft.id,
       releaseDate: new Date("2005-11-22"),
-      generation: "7ª geração",
+      generation: 7,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "Xbox 360", description: "Console de 7ª geração da Microsoft." },
@@ -140,7 +147,8 @@ export async function createConsoles() {
       nickname: "xboxone",
       brandId: microsoft.id,
       releaseDate: new Date("2013-11-22"),
-      generation: "8ª geração",
+      generation: 7,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "Xbox One", description: "Console de 8ª geração da Microsoft." },
@@ -159,6 +167,7 @@ export async function createConsoles() {
       brandId: microsoft.id,
       releaseDate: new Date("2020-11-10"),
       generation: "9ª geração",
+      type: "desktop",
       translations: {
         create: [
           {
@@ -185,6 +194,7 @@ export async function createConsoles() {
       brandId: microsoft.id,
       releaseDate: new Date("2020-11-10"),
       generation: "9ª geração",
+      type: "desktop",
       translations: {
         create: [
           {
@@ -211,7 +221,8 @@ export async function createConsoles() {
       nickname: "nes",
       brandId: nintendo.id,
       releaseDate: new Date("1985-07-15"),
-      generation: "3ª geração",
+      generation: 3,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "NES", description: "Console de 3ª geração da Nintendo." },
@@ -229,7 +240,8 @@ export async function createConsoles() {
       nickname: "snes",
       brandId: nintendo.id,
       releaseDate: new Date("1990-08-23"),
-      generation: "4ª geração",
+      generation: 4,
+      type: "desktop",
       translations: {
         create: [
           {
@@ -255,7 +267,8 @@ export async function createConsoles() {
       nickname: "n64",
       brandId: nintendo.id,
       releaseDate: new Date("1996-09-29"),
-      generation: "5ª geração",
+      generation: 5,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "Nintendo 64", description: "Console de 5ª geração da Nintendo." },
@@ -273,7 +286,8 @@ export async function createConsoles() {
       nickname: "wii",
       brandId: nintendo.id,
       releaseDate: new Date("2006-11-19"),
-      generation: "7ª geração",
+      generation: 7,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "Wii", description: "Console de 7ª geração da Nintendo." },
@@ -291,7 +305,8 @@ export async function createConsoles() {
       nickname: "switch",
       brandId: nintendo.id,
       releaseDate: new Date("2017-03-03"),
-      generation: "8ª geração",
+      generation: 7,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "Nintendo Switch", description: "Console híbrido da Nintendo." },
@@ -310,7 +325,8 @@ export async function createConsoles() {
       nickname: "mastersystem",
       brandId: sega.id,
       releaseDate: new Date("1985-10-20"),
-      generation: "3ª geração",
+      generation: 3,
+      type: "desktop",
       translations: {
         create: [
           {
@@ -336,7 +352,8 @@ export async function createConsoles() {
       nickname: "megadrive",
       brandId: sega.id,
       releaseDate: new Date("1988-10-29"),
-      generation: "4ª geração",
+      generation: 4,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "Sega Mega Drive", description: "Console de 4ª geração da Sega." },
@@ -354,7 +371,8 @@ export async function createConsoles() {
       nickname: "dreamcast",
       brandId: sega.id,
       releaseDate: new Date("1999-11-27"),
-      generation: "6ª geração",
+      generation: 6,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "Sega Dreamcast", description: "Console de 6ª geração da Sega." },
@@ -373,7 +391,8 @@ export async function createConsoles() {
       nickname: "2600",
       brandId: atari.id,
       releaseDate: new Date("1977-09-11"),
-      generation: "2ª geração",
+      generation: 2,
+      type: "desktop",
       translations: {
         create: [
           { locale: "pt", name: "Atari 2600", description: "Console de 2ª geração da Atari." },

@@ -24,6 +24,7 @@ export const getConsoleVariants = async (options: {
       brand: variant.console.brand,
       name: variant.translations[0]?.name || "No Name",
       consoleName: variant.console.translations[0]?.name || "No Console Name",
+      imageUrl: variant.imageUrl,
     })),
     meta: {
       total,

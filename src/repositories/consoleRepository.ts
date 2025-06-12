@@ -22,7 +22,7 @@ export const listConsoleVariants = ({
           id: true,
           slug: true,
           brand: { select: { id: true, slug: true } },
-          translations: { where: { locale }, select: { name: true } }, // Incluir as traduções do console
+          translations: { where: { locale }, select: { name: true } },
         },
       },
       translations: {
