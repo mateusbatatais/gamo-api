@@ -21,6 +21,7 @@ export const getConsoleVariants = async (options: {
       slug: variant.slug,
       brand: variant.console.brand,
       name: variant.translations[0]?.name || "No Name",
+      consoleName: variant.console.translations[0]?.name || "No Console Name", // Adicionando o nome do console
     })),
     meta: {
       total: total.length,
