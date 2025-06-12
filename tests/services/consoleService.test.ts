@@ -1,7 +1,6 @@
 // tests/services/consoleService.test.ts
 import { getConsoleVariants } from "../../src/services/consoleService";
 import * as consoleRepository from "../../src/repositories/consoleRepository";
-import { ConsoleVariantsResponse } from "../../src/dtos/consoleVariants.dto";
 
 // Mockando o repositório
 jest.mock("../../src/repositories/consoleRepository");

@@ -10,7 +10,6 @@ export async function createConsoleVariants() {
     ps3,
     ps4,
     ps5,
-    xbox,
     xbox360,
     xboxOne,
     xboxSeriesX,
