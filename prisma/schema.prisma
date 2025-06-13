@@ -21,7 +21,7 @@ model Console {
   brand       Brand            @relation(fields: [brandId], references: [id])
   slug        String           @unique // ex.: 'playstation-5'
   nickname    String           @unique // ex.: 'ps5'
-  releaseDate DateTime? // data oficial de lançamento
+  releaseDate DateTime?        @db.Date // Usar tipo DATE para datas sem hora
   generation  Int? // Alterado para um número
   type        String? // Novo campo: desktop, portátil ou híbrido
   variants    ConsoleVariant[]
@@ -64,7 +64,7 @@ model Skin {
 
   // Removi o description daqui para movê-lo à SkinTranslation:
   // description      String?       // texto descritivo → vai para SkinTranslation
-  releaseDate    DateTime? // data de lançamento oficial da skin
+  releaseDate    DateTime? @db.Date // Usar tipo DATE para datas sem hora
   limitedEdition Boolean? // true se edição limitada/colecionador
   editionName    String? // nome oficial da edição limitada (→ pode ser multilíngue)
   material       String? // ex.: 'Plástico ABS', 'Vinil adesivo'

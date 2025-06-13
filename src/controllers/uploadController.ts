@@ -6,12 +6,20 @@ import { AppError } from "../utils/errors";
 import streamifier from "streamifier";
 
 const upload = multer(); // armazenagem em memória
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 // Handler de upload
 const handleUpload: RequestHandler = async (req, res, next) => {
   try {
     if (!req.file) {
       throw new AppError(400, "NO_FILE_UPLOADED", "Nenhum arquivo foi enviado");
+    }
+    if (!ALLOWED_MIME_TYPES.includes(req.file.mimetype)) {
+      throw new AppError(400, "INVALID_FILE_TYPE", "Tipo de arquivo não suportado");
+    }
+    if (req.file.size > MAX_FILE_SIZE) {
+      throw new AppError(400, "FILE_TOO_LARGE", "Arquivo excede o tamanho máximo de 5MB");
     }
 
     const streamUpload = (fileBuffer: Buffer): Promise<CloudinaryUploadResponse> => {
