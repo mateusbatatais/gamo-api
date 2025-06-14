@@ -29,7 +29,7 @@ describe("Console Service", () => {
     (consoleRepository.listConsoleVariants as jest.Mock).mockResolvedValue(mockVariants);
     (consoleRepository.listConsoleVariants as jest.Mock).mockResolvedValueOnce(mockTotal);
 
-    const options = { brandSlug: "sony", locale: "pt", skip: 0, take: 10 };
+    const options = { brand: "sony", locale: "pt", skip: 0, take: 10 };
     const result = await getConsoleVariants(options);
 
     expect(result.items).toHaveLength(1);

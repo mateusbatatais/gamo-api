@@ -23,8 +23,11 @@ export const listConsoleVariantsHandler = async (
     const skip = (Number(page) - 1) * Number(perPage); // Convertendo para número
     const take = Number(perPage); // Convertendo para número
 
+    // Verifique se brand é uma string ou array de strings
+    const brandArray = Array.isArray(brand) ? brand : brand ? brand.split(",") : [];
+
     const options = {
-      brandSlug: brand,
+      brand: brandArray, // Passando sempre um array
       locale,
       skip,
       take,

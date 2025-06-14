@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const listConsoleVariantsSchema = z.object({
   query: z.object({
-    brand: z.string().optional(),
+    brand: z.union([z.string(), z.array(z.string())]).optional(), // Aqui aceitamos tanto string quanto array de strings
     locale: z.enum(["pt", "en"]).refine((val) => !!val, {
       message: "Locale é obrigatório",
     }),

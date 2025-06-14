@@ -17,7 +17,7 @@ describe("Console Repository", () => {
 
     (db.consoleVariant.findMany as jest.Mock).mockResolvedValue(mockVariants);
 
-    const options = { brandSlug: "sony", locale: "pt", skip: 0, take: 10 };
+    const options = { brand: "sony", locale: "pt", skip: 0, take: 10 };
     const result = await listConsoleVariants(options);
 
     expect(result).toHaveLength(1);

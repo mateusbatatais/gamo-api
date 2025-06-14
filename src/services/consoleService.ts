@@ -2,8 +2,9 @@
 import { listConsoleVariants, countConsoleVariants } from "../repositories/consoleRepository";
 import { ConsoleVariantsResponse } from "../dtos/consoleVariants.dto";
 
+// Modificando a assinatura da função para aceitar 'brand' como 'string[]'
 export const getConsoleVariants = async (options: {
-  brandSlug?: string;
+  brand?: string[]; // Modificado para aceitar um array de strings
   locale: string;
   skip: number;
   take: number;
@@ -11,7 +12,7 @@ export const getConsoleVariants = async (options: {
   const raw = await listConsoleVariants(options);
 
   const total = await countConsoleVariants({
-    brandSlug: options.brandSlug,
+    brand: options.brand, // Passando o brand como array
     locale: options.locale,
     skip: options.skip,
     take: options.take,

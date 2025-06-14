@@ -1,25 +1,19 @@
 // src/repositories/consoleRepository.ts
 import { db } from "../lib/db";
-
 export interface ListConsoleVariantsOptions {
-  brandSlug?: string;
+  brand?: string[]; // Aceita um array de strings agora
   locale: string;
   skip: number;
   take: number;
 }
 
-export const listConsoleVariants = ({
-  brandSlug,
-  locale,
-  skip,
-  take,
-}: ListConsoleVariantsOptions) => {
-  const brandFilter = brandSlug
-    ? { console: { brand: { slug: { in: brandSlug.split(",") } } } }
-    : {};
+export const listConsoleVariants = ({ brand, locale, skip, take }: ListConsoleVariantsOptions) => {
+  // Ajuste no filtro do 'brand'
+  const brandFilter =
+    brand && brand.length > 0 ? { console: { brand: { slug: { in: brand } } } } : {};
 
   return db.consoleVariant.findMany({
-    where: brandFilter,
+    where: brandFilter, // Aplicando o filtro adequado
     include: {
       console: {
         select: {
@@ -39,8 +33,10 @@ export const listConsoleVariants = ({
   });
 };
 
-export const countConsoleVariants = ({ brandSlug }: ListConsoleVariantsOptions) => {
+export const countConsoleVariants = ({ brand }: ListConsoleVariantsOptions) => {
   return db.consoleVariant.count({
-    where: brandSlug ? { console: { brand: { slug: brandSlug } } } : {},
+    where: brand
+      ? { console: { brand: { slug: { in: Array.isArray(brand) ? brand : [brand] } } } }
+      : {},
   });
 };
