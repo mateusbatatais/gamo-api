@@ -1,5 +1,5 @@
 // tests/validators/consoleVariantsValidator.test.ts
-import { listConsoleVariantsSchema } from "../../src/validators/listConsoleVariants";
+import { listConsoleVariantsSchema } from "../../../src/validators/listConsoleVariants";
 import { z } from "zod";
 
 describe("Console Variants Validation", () => {

@@ -1,7 +1,7 @@
 // src/services/userService.ts
 import * as userRepository from "../repositories/userRepository";
 import bcrypt from "bcryptjs";
-import { AppError } from "../utils/errors";
+import { AppError } from "../shared/errors";
 import { UpdateProfileInputDTO, UserProfileDTO, ChangePasswordInputDTO } from "../dtos/user.dto";
 
 /**

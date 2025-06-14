@@ -1,5 +1,5 @@
 // src/repositories/brandRepository.ts
-import { db } from "../lib/db";
+import { db } from "../core/db";
 
 export const listBrands = async () => {
   return db.brand.findMany({

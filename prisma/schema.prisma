@@ -22,7 +22,7 @@ model Console {
   slug        String           @unique // ex.: 'playstation-5'
   nickname    String           @unique // ex.: 'ps5'
   releaseDate DateTime?        @db.Date // Usar tipo DATE para datas sem hora
-  generation  Int? // Alterado para um número
+  generation  Int?             @default(1) // Define um valor padrão
   type        String? // Novo campo: desktop, portátil ou híbrido
   variants    ConsoleVariant[]
   accessories Accessory[]

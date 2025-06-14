@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import * as authService from "../services/authService";
-import { db } from "../lib/db";
+import { db } from "../core/db";
 import jwt from "jsonwebtoken";
-import { sendVerificationEmail, sendRecoveryEmail } from "../utils/email";
-import { AppError } from "../utils/errors";
+import { sendVerificationEmail, sendRecoveryEmail } from "../infra/email";
+import { AppError } from "../shared/errors";
 import { DecodedIdToken } from "firebase-admin/auth";
 
 /**

@@ -1,9 +1,9 @@
 // src/services/authService.ts
-import { db } from "../lib/db";
+import { db } from "../core/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { AppError } from "../utils/errors";
+import { AppError } from "../shared/errors";
 
 export interface SignupInput {
   name: string;

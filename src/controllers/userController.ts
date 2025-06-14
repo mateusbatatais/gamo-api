@@ -1,11 +1,11 @@
 // src/controllers/userController.ts
 import { Request, Response, NextFunction } from "express";
 import * as userService from "../services/userService";
-import { AppError } from "../utils/errors";
+import { AppError } from "../shared/errors";
 import { createUserProfileSchema, createChangePasswordSchema } from "../validators/user"; // Ajuste para o novo arquivo de validação
 
 interface RequestWithUser extends Request {
-  user: { id: number };
+  user: { id: number; role: string; email: string };
 }
 
 export async function getProfileController(

@@ -1,8 +1,8 @@
 // src/controllers/uploadController.ts
 import { RequestHandler } from "express";
 import multer from "multer";
-import cloudinary, { CloudinaryUploadResponse } from "../utils/cloudinary";
-import { AppError } from "../utils/errors";
+import cloudinary, { CloudinaryUploadResponse } from "../infra/cloudinary";
+import { AppError } from "../shared/errors";
 import streamifier from "streamifier";
 
 const upload = multer(); // armazenagem em memória

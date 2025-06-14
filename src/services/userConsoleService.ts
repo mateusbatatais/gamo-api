@@ -1,4 +1,4 @@
-import { db } from "../lib/db";
+import { db } from "../core/db";
 
 export interface CreateUserConsoleInput {
   consoleId: number;
@@ -16,10 +16,7 @@ export async function listUserConsoles(userId: number) {
   });
 }
 
-export async function addUserConsole(
-  userId: number,
-  data: CreateUserConsoleInput
-) {
+export async function addUserConsole(userId: number, data: CreateUserConsoleInput) {
   const variant = await db.consoleVariant.findUnique({
     where: {
       consoleId_slug: { consoleId: data.consoleId, slug: data.variantSlug },

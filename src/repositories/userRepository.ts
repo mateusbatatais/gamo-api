@@ -1,5 +1,5 @@
 // src/repositories/userRepository.ts
-import { db } from "../lib/db";
+import { db } from "../core/db";
 import { Prisma } from "@prisma/client";
 
 // Função para encontrar um usuário pelo ID

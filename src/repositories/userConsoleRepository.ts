@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { db } from "../lib/db";
+import { db } from "../core/db";
 
 export const createUserConsole = (data: Prisma.UserConsoleCreateInput) => {
   return db.userConsole.create({
