@@ -1,9 +1,10 @@
 // src/repositories/consoleRepository.ts
 import { db } from "../lib/db";
+import { Prisma } from "@prisma/client";
 
 export interface ListConsoleVariantsOptions {
-  brand?: string[]; // Filtro para marca
-  generation?: number[]; // Filtro para geração (alterado para número)
+  brand?: string[];
+  generation?: number[];
   locale: string;
   skip: number;
   take: number;
@@ -16,23 +17,48 @@ export const listConsoleVariants = ({
   skip,
   take,
 }: ListConsoleVariantsOptions) => {
-  const brandFilter =
-    brand && brand.length > 0 ? { console: { brand: { slug: { in: brand } } } } : {};
-  const generationFilter =
-    generation && generation.length > 0 ? { console: { generation: { in: generation } } } : {};
+  // Criar um array de condições
+  const conditions: Prisma.ConsoleVariantWhereInput[] = [];
+
+  // Condição para marca
+  if (brand && brand.length > 0) {
+    conditions.push({
+      console: {
+        brand: {
+          slug: { in: brand },
+        },
+      },
+    });
+  }
+
+  // Condição para geração
+  if (generation && generation.length > 0) {
+    conditions.push({
+      console: {
+        generation: { in: generation },
+      },
+    });
+  }
+
+  // Condição para tradução
+  conditions.push({
+    translations: {
+      some: { locale },
+    },
+  });
+
+  // Combina todas as condições com AND
+  const where: Prisma.ConsoleVariantWhereInput = conditions.length > 0 ? { AND: conditions } : {};
 
   return db.consoleVariant.findMany({
-    where: {
-      ...brandFilter, // Filtro de marca
-      ...generationFilter, // Filtro de geração
-    },
+    where,
     include: {
       console: {
         select: {
           id: true,
           slug: true,
           brand: { select: { id: true, slug: true } },
-          generation: true, // Inclusão da geração
+          generation: true,
           translations: { where: { locale }, select: { name: true } },
         },
       },
@@ -46,10 +72,29 @@ export const listConsoleVariants = ({
   });
 };
 
-export const countConsoleVariants = ({ brand }: ListConsoleVariantsOptions) => {
-  return db.consoleVariant.count({
-    where: brand
-      ? { console: { brand: { slug: { in: Array.isArray(brand) ? brand : [brand] } } } }
-      : {},
-  });
+export const countConsoleVariants = ({ brand, generation }: ListConsoleVariantsOptions) => {
+  // Mesma lógica de condições para a contagem
+  const conditions: Prisma.ConsoleVariantWhereInput[] = [];
+
+  if (brand && brand.length > 0) {
+    conditions.push({
+      console: {
+        brand: {
+          slug: { in: brand },
+        },
+      },
+    });
+  }
+
+  if (generation && generation.length > 0) {
+    conditions.push({
+      console: {
+        generation: { in: generation },
+      },
+    });
+  }
+
+  const where: Prisma.ConsoleVariantWhereInput = conditions.length > 0 ? { AND: conditions } : {};
+
+  return db.consoleVariant.count({ where });
 };

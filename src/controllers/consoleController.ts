@@ -1,46 +1,35 @@
 // src/controllers/consoleController.ts
 import { Request, Response, NextFunction } from "express";
 import { getConsoleVariants } from "../services/consoleService";
-import { AppError } from "../utils/errors";
-import { ListConsoleVariantsDTO } from "../validators/listConsoleVariants";
-import { listConsoleVariantsSchema } from "../validators/listConsoleVariants";
 
 export const listConsoleVariantsHandler = async (
-  req: Request<object, object, object, ListConsoleVariantsDTO>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<Response | void> => {
   try {
-    // Validação dos parâmetros de consulta com o Zod
-    const { success, error } = listConsoleVariantsSchema.safeParse(req);
-    if (!success) {
-      throw new AppError(400, "INVALID_INPUT", error.errors.map((e) => e.message).join(", "));
-    }
+    // Extrair e converter parâmetros
+    const brand = req.query.brand ? (req.query.brand as string).split(",") : undefined;
 
-    const { brand, generation, locale = "pt", page = 1, perPage = 20 } = req.query;
+    const generation = req.query.generation
+      ? (req.query.generation as string).split(",").map(Number)
+      : undefined;
 
-    // Transformar os parâmetros page e perPage para números inteiros
-    const skip = (Number(page) - 1) * Number(perPage); // Convertendo para número
-    const take = Number(perPage); // Convertendo para número
+    const locale = (req.query.locale as string) || "pt";
+    const page = Number(req.query.page) || 1;
+    const perPage = Number(req.query.perPage) || 20;
 
-    // Verificando se brand e generation são strings ou arrays de strings
-    const brandArray = Array.isArray(brand) ? brand : brand ? brand.split(",") : [];
-    const generationArray = Array.isArray(generation)
-      ? generation
-      : generation
-        ? generation.split(",")
-        : [];
+    const skip = (page - 1) * perPage;
+    const take = perPage;
 
-    const options = {
-      brand: brandArray,
-      generation: generationArray, // Agora passando o filtro de geração também
+    const variants = await getConsoleVariants({
+      brand,
+      generation,
       locale,
       skip,
       take,
-    };
+    });
 
-    // Verificando a consulta no serviço
-    const variants = await getConsoleVariants(options);
     return res.json(variants);
   } catch (err) {
     next(err);
