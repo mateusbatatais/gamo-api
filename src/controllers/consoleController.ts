@@ -17,17 +17,23 @@ export const listConsoleVariantsHandler = async (
       throw new AppError(400, "INVALID_INPUT", error.errors.map((e) => e.message).join(", "));
     }
 
-    const { brand, locale = "pt", page = 1, perPage = 20 } = req.query;
+    const { brand, generation, locale = "pt", page = 1, perPage = 20 } = req.query;
 
     // Transformar os parâmetros page e perPage para números inteiros
     const skip = (Number(page) - 1) * Number(perPage); // Convertendo para número
     const take = Number(perPage); // Convertendo para número
 
-    // Verifique se brand é uma string ou array de strings
+    // Verificando se brand e generation são strings ou arrays de strings
     const brandArray = Array.isArray(brand) ? brand : brand ? brand.split(",") : [];
+    const generationArray = Array.isArray(generation)
+      ? generation
+      : generation
+        ? generation.split(",")
+        : [];
 
     const options = {
-      brand: brandArray, // Passando sempre um array
+      brand: brandArray,
+      generation: generationArray, // Agora passando o filtro de geração também
       locale,
       skip,
       take,
