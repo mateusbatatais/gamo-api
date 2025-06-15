@@ -1,13 +1,11 @@
 import express from "express";
 import cors from "cors";
-import authRouter from "./routes/auth";
-import { authMiddleware } from "./middleware/auth";
-import userConsolesRouter from "./routes/userConsoles";
-import userProfileRouter from "./routes/userProfile";
+import authRouter from "./modules/auth/auth.routes";
+import userProfileRouter from "./modules/user/user.routes";
 import { AppError } from "./shared/errors";
-import uploadRoutes from "./routes/uploadRoutes";
-import consolesRouter from "./routes/consoles";
-import brandsRouter from "./routes/brands";
+import uploadRoutes from "./modules/upload/upload.routes";
+import consolesRouter from "./modules/console/consoles.routes";
+import brandsRouter from "./modules/brand/brands.routes";
 
 const app = express();
 
@@ -45,9 +43,6 @@ app.use("/api/brands", brandsRouter);
 
 // 3.1. Perfil do usuário
 app.use("/api/user", userProfileRouter);
-
-// 3.2. Consoles do usuário
-app.use("/api/user/consoles", authMiddleware, userConsolesRouter);
 
 app.use("/api/uploads", uploadRoutes);
 

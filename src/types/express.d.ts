@@ -1,14 +1,15 @@
-import { JwtPayload } from "jsonwebtoken";
+// src/types/express.d.ts
+import { DecodedIdToken } from "firebase-admin/auth";
 
 declare global {
   namespace Express {
-    interface Request {
+    export interface Request {
       user?: {
         id: number;
         role: string;
         email: string;
-      } & Partial<JwtPayload>;
-      firebaseUser?: import("firebase-admin/auth").DecodedIdToken;
+      };
+      firebaseUser?: DecodedIdToken;
     }
   }
 }
