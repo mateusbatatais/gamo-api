@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import * as authService from "./auth.service";
-import { sendVerificationEmail, sendRecoveryEmail } from "@infra/email";
 import {
   signupSchema,
   loginSchema,
@@ -11,7 +10,8 @@ import {
 } from "./auth.schema";
 import { validate, validateQuery } from "../../middleware/validate.middleware.ts";
 import { db } from "../../core/db";
-import { AppError } from "@shared/errors";
+import { sendRecoveryEmail, sendVerificationEmail } from "../../infra/email";
+import { AppError } from "../../shared/errors";
 
 export const signup = [
   validate(signupSchema), // Middleware de validação

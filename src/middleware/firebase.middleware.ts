@@ -1,9 +1,9 @@
 // src/middleware/firebaseAuth.ts
 import { Request, RequestHandler } from "express";
-import { firebaseAuth } from "@infra/firebase";
 
 // 1) Declaramos aqui a interface que “estende” Request com nosso campo extra:
 import { DecodedIdToken } from "firebase-admin/auth";
+import { firebaseAuth } from "../infra/firebase";
 
 interface RequestWithFirebaseUser extends Request {
   firebaseUser: DecodedIdToken;

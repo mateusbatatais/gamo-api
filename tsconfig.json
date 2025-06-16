@@ -14,11 +14,6 @@
     "strict": true /* Enable all strict type-checking options. */,
     "skipLibCheck": true /* Skip type checking all .d.ts files. */,
     "types": ["jest", "node"],
-    "baseUrl": "./src",
-    "paths": {
-      "@shared/*": ["shared/*"],
-      "@infra/*": ["infra/*"]
-    }
     
   },
   "include": ["src", "prisma"],

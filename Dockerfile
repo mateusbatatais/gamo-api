@@ -15,11 +15,8 @@ COPY . .
 RUN npx prisma generate
 RUN pnpm run build
 
-# Copia TODOS os arquivos necessários para dist
-RUN find src -type f -name "*.ts" -o -name "*.js" -o -name "*.json" | while read f; do \
-    mkdir -p "dist/$(dirname "$f")"; \
-    cp "$f" "dist/$(dirname "$f")"; \
-    done
+# Copia toda a estrutura src para dist
+RUN cp -r src dist/src
 
 # --------------------------
 # Stage 2: Runner

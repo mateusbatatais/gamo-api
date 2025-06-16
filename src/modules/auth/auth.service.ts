@@ -9,7 +9,7 @@ import {
   ResendVerificationInput,
 } from "./auth.schema";
 import { db } from "../../core/db";
-import { AppError } from "@shared/errors";
+import { AppError } from "../../shared/errors";
 
 const TOKEN_EXPIRES_IN = "7d";
 
