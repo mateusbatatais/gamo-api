@@ -7,21 +7,33 @@ API REST para o backend do GAMO — plataforma de cadastro, ranqueamento e negoc
 ## 📁 Estrutura de Pastas
 
 ```
-prisma/           # Migrations e esquema do Prisma
-public/           # Arquivos estáticos (e.g. uploads de imagens)
+prisma/ # Migrations e esquema do Prisma
+public/ # Arquivos estáticos (uploads de imagens)
 src/
-  controllers/    # Lógica de roteadores HTTP
-  dtos/           # Tipos de entrada/saída (Data Transfer Objects)
-  lib/            # Configurações compartilhadas (ex.: instância do Prisma)
-  middleware/     # Middlewares Express (validação, autenticação)
-  repositories/   # Acesso direto ao banco via Prisma
-  routes/         # Definição de rotas e agrupamento de controllers
-  services/       # Regras de negócio e composição de repositórios
-  utils/          # Funções utilitárias e classes de erro
-  validators/     # Schemas Zod para validação de requests
-src/index.ts     # Ponto de entrada da aplicação
-
-tests/            # Suíte de testes (unit e integration)
+   core/ # Configurações essenciais (banco de dados, etc.)
+      db.ts
+   generated/ # Código gerado automaticamente
+   infra/ # Integrações com serviços externos
+      cloudinary.ts # Armazenamento de imagens
+      email.ts # Envio de e-mails
+      firebase.ts # Notificações Firebase
+   middleware/ # Middlewares Express
+      auth.middleware.ts
+      firebase.middleware.ts
+      validate.middleware.ts
+   modules/ # Funcionalidades organizadas por módulo
+      auth/  # Autenticação
+         __tests__ # Testes do modulo
+         auth.controller.ts
+         auth.routes.ts
+         auth.schema.ts
+         auth.service.ts
+      ... # outros modulos
+   shared/ # Utilitários e código compartilhado
+   test/ # test.setup
+   types/ # Tipos globais TypeScript
+   app.ts # Configuração do Express
+   index.ts # Ponto de entrada da aplicação
 ```
 
 ---
@@ -41,9 +53,11 @@ tests/            # Suíte de testes (unit e integration)
 ### Dev Dependencies
 
 - **pnpm** como gerenciador de pacotes
-- **ESLint** + **Prettier** + **lint-staged** + **Husky** para lint e formatação
-- **Jest** + **Supertest** (`ts-jest`) para testes
-- **ts-node-dev** para desenvolvimento com recarga automática
+- **ESLint** + **Prettier** para linting e formatação
+- **Vitest** para testes (substituto do Jest)
+- **Supertest** para testes de integração HTTP
+- **ts-node-dev** para desenvolvimento com hot-reload
+- **Husky** + **lint-staged** para pré-commit hooks
 
 ---
 
@@ -51,22 +65,20 @@ tests/            # Suíte de testes (unit e integration)
 
 ```jsonc
 {
-  "dev": "ts-node-dev --respawn --transpile-only src/index.ts", // Inicia em modo desenvolvimento
-  "build": "tsc", // Compila TypeScript
-  "migrate": "prisma migrate deploy", // Aplica migrations em production
-  "seed": "pnpm prisma:generate && ts-node-dev prisma/seed.ts", // Popula dados iniciais
-  "start": "pnpm migrate && pnpm seed && node dist/index.js", // Executa migrations, seed e inicia build
+  "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+  "build": "tsc",
+  "start": "node dist/index.js",
 
-  "prisma:studio": "prisma studio", // UI do Prisma
-  "prisma:migrate:dev": "prisma migrate dev", // Cria nova migration em dev
-  "prisma:generate": "prisma generate", // Gera client do Prisma
-  "prisma:format": "prisma format", // Formata schema.prisma
-  "prisma:reset": "prisma migrate reset --force", // Reseta banco e reaplica migrations
+  "prisma:studio": "prisma studio",
+  "prisma:migrate:dev": "prisma migrate dev",
+  "prisma:generate": "prisma generate",
+  "prisma:reset": "prisma migrate reset --force",
 
-  "lint": "eslint . --ext .ts,.js", // Executa ESLint
-  "test": "jest --runInBand", // Roda testes
-  "test:watch": "jest --watch", // Modo watch para testes
-  "test:coverage": "jest --coverage", // Relatório de cobertura
+  "lint": "eslint . --ext .ts,.js --fix",
+  "format": "prettier --write .",
+  "test": "vitest",
+  "test:watch": "vitest watch",
+  "test:coverage": "vitest run --coverage",
 }
 ```
 
