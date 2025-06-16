@@ -2,38 +2,33 @@
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import { defineConfig } from "eslint/config";
+import vitestPlugin from "eslint-plugin-vitest";
 
-export default defineConfig([
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 1) IGNORAR PASTA
+// Obter configuração recomendada do @eslint/js
+const jsRecommended = js.configs.recommended;
+
+export default [
+  // 1) Ignorar pastas
   {
     ignores: ["src/generated/**", "dist/**", "node_modules/**", "coverage/**"],
   },
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 2) CONFIGURAÇÃO PADRÃO DO TYPESCRIPT-ESLINT (RECOMMENDED)
-  tseslint.configs.recommended,
+  // 2) Configuração recomendada do JavaScript
+  jsRecommended,
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 3) REGRAS PARA JS/TS: PLUGINS e __SOBRESCRITA__ DE REGRAS
-  //    → este bloco vem DEPOIS do `tseslint.configs.recommended`
-  //      para garantir que “off” realmente prevaleça.
+  // 3) Configuração recomendada do TypeScript
+  ...tseslint.configs.recommended,
+
+  // 4) Regras personalizadas para JS/TS
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
-    plugins: { js },
-    extends: ["js/recommended"],
     rules: {
-      // desativa quem proíbe "var x = require('...')"
       "@typescript-eslint/no-var-requires": "off",
-
-      // desativa quem proíbe qualquer require() em substituição a import
       "@typescript-eslint/no-require-imports": "off",
     },
   },
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 4) GLOBAIS DO NODE
+  // 5) Globais do Node
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
     languageOptions: {
@@ -41,11 +36,25 @@ export default defineConfig([
     },
   },
 
-  // 5) AQUI: habilita as globals do Jest em arquivos de teste
+  // 6) Configuração para testes (Vitest)
   {
     files: ["**/*.spec.ts", "**/*.test.ts", "tests/**/*.ts"],
+    plugins: {
+      vitest: vitestPlugin,
+    },
     languageOptions: {
-      globals: globals.jest, // ativa describe, it, expect, jest, etc.
+      globals: {
+        ...globals.jest, // Mantém compatibilidade com globais do Jest
+        vi: "readonly", // Adiciona global do Vitest
+      },
+    },
+    rules: {
+      // Regras recomendadas do Vitest
+      ...vitestPlugin.configs.recommended.rules,
+
+      // Regras adicionais
+      "vitest/consistent-test-it": ["error", { fn: "it" }],
+      "vitest/no-identical-title": "error",
     },
   },
-]);
+];
