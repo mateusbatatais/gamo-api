@@ -1,7 +1,7 @@
 // src/middleware/auth.middleware.ts
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
-import { AppError } from "../shared/errors";
+import { AppError } from "@shared/errors";
 
 declare module "express" {
   interface Request {

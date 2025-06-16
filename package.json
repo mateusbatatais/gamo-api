@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
+    "postbuild": "shx cp -r src/shared dist/shared && shx cp -r src/infra dist/infra",
     "migrate": "npx prisma migrate deploy",
     "seed": "node dist/prisma/seed.js",
     "start": "npm run migrate && npm run seed && node dist/index.js",
@@ -66,6 +67,7 @@
     "lint-staged": "^16.1.0",
     "prettier": "^3.5.3",
     "prisma": "^6.7.0",
+    "shx": "^0.4.0",
     "supertest": "^7.1.1",
     "ts-jest": "^29.3.4",
     "ts-node-dev": "^2.0.0",

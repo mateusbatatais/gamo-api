@@ -1,7 +1,7 @@
 import * as userRepository from "./user.repository";
 import bcrypt from "bcryptjs";
 import { UserProfile, UpdateProfileInput, ChangePasswordInput } from "./user.schema";
-import { AppError } from "../../shared/errors";
+import { AppError } from "@shared/errors";
 
 export const getUserById = async (userId: number): Promise<UserProfile> => {
   return userRepository.getUserById(userId);

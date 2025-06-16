@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRouter from "./modules/auth/auth.routes";
 import userProfileRouter from "./modules/user/user.routes";
-import { AppError } from "./shared/errors";
+import { AppError } from "@shared/errors";
 import uploadRoutes from "./modules/upload/upload.routes";
 import consolesRouter from "./modules/console/consoles.routes";
 import brandsRouter from "./modules/brand/brands.routes";

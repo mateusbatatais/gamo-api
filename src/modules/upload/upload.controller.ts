@@ -1,8 +1,8 @@
 import { RequestHandler } from "express";
 import multer from "multer";
-import { AppError } from "../../../src/shared/errors";
 import streamifier from "streamifier";
-import cloudinary, { CloudinaryUploadResponse } from "../../infra/cloudinary";
+import cloudinary, { CloudinaryUploadResponse } from "@infra/cloudinary";
+import { AppError } from "@shared/errors";
 
 const upload = multer();
 
