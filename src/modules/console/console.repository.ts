@@ -95,3 +95,46 @@ export const countConsoleVariants = async (
     where: { AND: conditions },
   });
 };
+
+export const getConsoleVariantDetails = async (slug: string, locale: string) => {
+  return db.consoleVariant.findFirst({
+    where: {
+      slug,
+      translations: {
+        some: { locale },
+      },
+    },
+    include: {
+      console: {
+        include: {
+          brand: {
+            select: {
+              id: true,
+              slug: true,
+            },
+          },
+          translations: {
+            where: { locale },
+            select: { name: true, description: true },
+          },
+        },
+      },
+      translations: {
+        where: { locale },
+        select: { name: true },
+      },
+      Skin: {
+        include: {
+          translations: {
+            where: { locale },
+            select: {
+              name: true,
+              description: true,
+              editionName: true,
+            },
+          },
+        },
+      },
+    },
+  });
+};

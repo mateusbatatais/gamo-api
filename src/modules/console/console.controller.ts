@@ -1,6 +1,6 @@
 // console.controller.ts
 import { Request, Response, NextFunction } from "express";
-import { getConsoleVariants } from "./console.service";
+import { getConsoleVariants, getConsoleVariantWithSkins } from "./console.service";
 import { ListConsoleVariantsSchema } from "./console.schema";
 import { validateQuery } from "../../middleware/validate.middleware.ts";
 
@@ -39,3 +39,15 @@ export const listConsoleVariants = [
     }
   },
 ];
+
+export const getConsoleVariant = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { slug } = req.params;
+    const locale = (req.query.locale as string) || "pt";
+
+    const variant = await getConsoleVariantWithSkins(slug, locale);
+    res.json(variant);
+  } catch (error) {
+    next(error);
+  }
+};
