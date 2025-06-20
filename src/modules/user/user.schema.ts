@@ -13,6 +13,12 @@ export const userProfileSchema = z.object({
 // Update Profile
 export const updateProfileSchema = z.object({
   name: z.string().min(1),
+  slug: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-z0-9-]+$/, "Slug deve conter apenas letras minúsculas, números e hífens")
+    .optional(),
   email: z.string().email(),
   description: z.string().optional(),
   profileImage: z.string().optional(),

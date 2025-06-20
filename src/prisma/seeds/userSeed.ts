@@ -9,6 +9,7 @@ export async function createAdminUser() {
     update: {},
     create: {
       name: "Super Admin",
+      slug: "super-admin",
       email: "admin@gamo.games",
       password: await bcrypt.hash("1234", 10),
       role: "SUPER_ADMIN",

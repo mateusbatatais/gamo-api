@@ -8,12 +8,23 @@ export const getUserById = async (userId: number): Promise<UserProfile> => {
 };
 
 export const updateProfile = async (userId: number, input: UpdateProfileInput) => {
-  const existing = await userRepository.getUserByEmail(input.email);
-  if (existing && existing.id !== userId)
-    throw new AppError(400, "EMAIL_IN_USE", "Email already in use");
+  if (input.email) {
+    const existing = await userRepository.getUserByEmail(input.email);
+    if (existing && existing.id !== userId) {
+      throw new AppError(400, "EMAIL_IN_USE", "Email already in use");
+    }
+  }
+
+  if (input.slug) {
+    const slugExists = await userRepository.checkSlugAvailability(input.slug, userId);
+    if (slugExists) {
+      throw new AppError(400, "SLUG_IN_USE", "This slug is already taken");
+    }
+  }
 
   return userRepository.updateUser(userId, {
     name: input.name,
+    slug: input.slug,
     email: input.email,
     description: input.description,
     profileImage: input.profileImage,

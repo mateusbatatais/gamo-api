@@ -8,17 +8,14 @@ import {
   resetPasswordSchema,
   verifyEmailSchema,
 } from "./auth.schema";
-import { validate, validateQuery } from "../../middleware/validate.middleware.ts";
-import { db } from "../../core/db";
-import { sendRecoveryEmail, sendVerificationEmail } from "../../infra/email";
 import { AppError } from "../../shared/errors";
+import { sendRecoveryEmail, sendVerificationEmail } from "../../infra/email";
+import { validate, validateQuery } from "../../middleware/validate.middleware.ts";
 
 export const signup = [
-  validate(signupSchema), // Middleware de validação
+  validate(signupSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("Signup Body:", req.body); // Log para depuração
-
       const { userId, rawToken } = await authService.signup(req.body);
       await sendVerificationEmail(req.body.email, rawToken);
 
@@ -32,6 +29,7 @@ export const signup = [
     }
   },
 ];
+
 export const login = [
   validate(loginSchema),
   async (req: Request, res: Response, next: NextFunction) => {
@@ -44,10 +42,8 @@ export const login = [
   },
 ];
 
-// auth.controller.ts
 export const socialLogin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Agora TypeScript reconhece req.firebaseUser
     if (!req.firebaseUser || !req.firebaseUser.email) {
       throw new AppError(400, "INVALID_TOKEN", "Token inválido ou sem email");
     }
@@ -66,25 +62,8 @@ export const verifyEmail = [
     try {
       const { token } = req.query as { token: string };
 
-      const user = await db.user.findFirst({
-        where: {
-          emailVerificationToken: token,
-          emailVerificationTokenExpires: { gt: new Date() },
-        },
-      });
-
-      if (!user) {
-        throw new AppError(400, "INVALID_OR_EXPIRED_TOKEN", "Invalid or expired token");
-      }
-
-      await db.user.update({
-        where: { id: user.id },
-        data: {
-          emailVerified: true,
-          emailVerificationToken: null,
-          emailVerificationTokenExpires: null,
-        },
-      });
+      // Chamar o service em vez do repository diretamente
+      await authService.verifyEmail(token);
 
       res.json({ code: "EMAIL_CONFIRMED", message: "Email successfully confirmed" });
     } catch (err) {

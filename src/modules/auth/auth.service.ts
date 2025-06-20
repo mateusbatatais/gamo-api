@@ -8,8 +8,9 @@ import {
   ResetPasswordInput,
   ResendVerificationInput,
 } from "./auth.schema";
-import { db } from "../../core/db";
 import { AppError } from "../../shared/errors";
+import * as authRepository from "./auth.repository";
+import { generateUniqueSlug } from "../../shared/slugify";
 
 const TOKEN_EXPIRES_IN = "7d";
 
@@ -26,21 +27,21 @@ function generateTokenWithExpiry(expireMs: number) {
 export const signup = async (input: SignupInput) => {
   const { name, email, password } = input;
 
-  const exists = await db.user.findUnique({ where: { email } });
+  const exists = await authRepository.findUserByEmail(email);
   if (exists) throw new AppError(409, "USER_ALREADY_EXISTS", "User already exists");
 
+  const slug = await generateUniqueSlug(name);
   const hash = await bcrypt.hash(password, 10);
   const { rawToken, expires } = generateTokenWithExpiry(24 * 60 * 60 * 1000);
 
-  const user = await db.user.create({
-    data: {
-      name,
-      email,
-      password: hash,
-      emailVerified: false,
-      emailVerificationToken: rawToken,
-      emailVerificationTokenExpires: expires,
-    },
+  const user = await authRepository.createUser({
+    name,
+    slug,
+    email,
+    password: hash,
+    emailVerified: false,
+    emailVerificationToken: rawToken,
+    emailVerificationTokenExpires: expires,
   });
 
   return { userId: user.id, rawToken };
@@ -49,7 +50,7 @@ export const signup = async (input: SignupInput) => {
 export const login = async (input: LoginInput) => {
   const { email, password } = input;
 
-  const user = await db.user.findUnique({ where: { email } });
+  const user = await authRepository.findUserByEmail(email);
   if (!user || !user.password)
     throw new AppError(401, "INVALID_CREDENTIALS", "Invalid credentials");
   if (!user.emailVerified) throw new AppError(403, "EMAIL_NOT_VERIFIED", "Email not verified");
@@ -63,18 +64,15 @@ export const login = async (input: LoginInput) => {
 export const resendVerificationToken = async (input: ResendVerificationInput) => {
   const { email } = input;
 
-  const user = await db.user.findUnique({ where: { email } });
+  const user = await authRepository.findUserByEmail(email);
   if (!user) throw new AppError(404, "USER_NOT_FOUND", "User not found");
   if (user.emailVerified) throw new AppError(400, "ALREADY_VERIFIED", "Email already verified");
 
   const { rawToken, expires } = generateTokenWithExpiry(24 * 60 * 60 * 1000);
 
-  await db.user.update({
-    where: { email },
-    data: {
-      emailVerificationToken: rawToken,
-      emailVerificationTokenExpires: expires,
-    },
+  await authRepository.updateUserByEmail(email, {
+    emailVerificationToken: rawToken,
+    emailVerificationTokenExpires: expires,
   });
 
   return { rawToken };
@@ -83,18 +81,15 @@ export const resendVerificationToken = async (input: ResendVerificationInput) =>
 export const createPasswordResetToken = async (input: RecoverPasswordInput) => {
   const { email } = input;
 
-  const user = await db.user.findUnique({ where: { email } });
+  const user = await authRepository.findUserByEmail(email);
   if (!user) throw new AppError(404, "USER_NOT_FOUND", "User not found");
   if (!user.emailVerified) throw new AppError(400, "EMAIL_NOT_VERIFIED", "Email not verified");
 
   const { rawToken, expires } = generateTokenWithExpiry(60 * 60 * 1000);
 
-  await db.user.update({
-    where: { email },
-    data: {
-      passwordResetToken: rawToken,
-      passwordResetTokenExpires: expires,
-    },
+  await authRepository.updateUserByEmail(email, {
+    passwordResetToken: rawToken,
+    passwordResetTokenExpires: expires,
   });
 
   return { rawToken };
@@ -103,36 +98,27 @@ export const createPasswordResetToken = async (input: RecoverPasswordInput) => {
 export const resetPassword = async (input: ResetPasswordInput) => {
   const { token, newPassword } = input;
 
-  const user = await db.user.findFirst({
-    where: {
-      passwordResetToken: token,
-      passwordResetTokenExpires: { gt: new Date() },
-    },
-  });
+  const user = await authRepository.findUserByPasswordResetToken(token);
   if (!user) throw new AppError(400, "INVALID_OR_EXPIRED_TOKEN", "Invalid or expired token");
 
   const hash = await bcrypt.hash(newPassword, 10);
-  await db.user.update({
-    where: { id: user.id },
-    data: {
-      password: hash,
-      passwordResetToken: null,
-      passwordResetTokenExpires: null,
-    },
+  await authRepository.updateUserById(user.id, {
+    password: hash,
+    passwordResetToken: null,
+    passwordResetTokenExpires: null,
   });
 };
 
 export const socialLogin = async (email: string, name: string) => {
-  const user = await db.user.upsert({
-    where: { email },
-    update: {},
-    create: {
-      name: name || email.split("@")[0],
-      email,
-      password: null,
-      role: "NORMAL",
-      emailVerified: true,
-    },
+  const slug = await generateUniqueSlug(name);
+
+  const user = await authRepository.upsertUserByEmail(email, {
+    name: name || email.split("@")[0],
+    slug,
+    email,
+    password: null,
+    role: "NORMAL",
+    emailVerified: true,
   });
 
   return jwt.sign(
@@ -140,4 +126,17 @@ export const socialLogin = async (email: string, name: string) => {
     process.env.JWT_SECRET!,
     { expiresIn: "7d" },
   );
+};
+
+export const verifyEmail = async (token: string) => {
+  const user = await authRepository.findUserByVerificationToken(token);
+  if (!user) {
+    throw new AppError(400, "INVALID_OR_EXPIRED_TOKEN", "Invalid or expired token");
+  }
+
+  await authRepository.updateUserById(user.id, {
+    emailVerified: true,
+    emailVerificationToken: null,
+    emailVerificationTokenExpires: null,
+  });
 };

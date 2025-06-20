@@ -105,6 +105,7 @@ model GameEdition {
 model User {
   id                            Int           @id @default(autoincrement())
   name                          String
+  slug                          String        @unique // Novo campo único
   email                         String        @unique
   profileImage                  String? // URL da imagem de perfil
   password                      String?
