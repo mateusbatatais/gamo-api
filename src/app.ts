@@ -7,6 +7,7 @@ import consolesRouter from "./modules/console/consoles.routes";
 import brandsRouter from "./modules/brand/brands.routes";
 import { AppError } from "./shared/errors";
 import userConsoleRouter from "./modules/userConsole/userConsole.routes";
+import publicProfileRouter from "./modules/publicProfile/publicProfile.routes";
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use("/api/user", userProfileRouter);
 app.use("/api/user-consoles", userConsoleRouter);
 
 app.use("/api/uploads", uploadRoutes);
+app.use("/api/public/profile", publicProfileRouter);
 
 // ---------------------------------------------------------------
 // 4. Health check
