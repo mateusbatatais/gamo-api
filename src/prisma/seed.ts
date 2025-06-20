@@ -6,7 +6,7 @@ import { createAdminUser } from "./seeds/userSeed";
 import { createBrands } from "./seeds/brandSeed";
 import { createConsoles } from "./seeds/consoleSeed";
 import { createConsoleVariants } from "./seeds/consoleVariantSeed";
-import { createSkins } from "./seeds/skinSeed";
+import { createSkins } from "./seeds/consoleSkinSeed";
 import { createGames } from "./seeds/gameSeed";
 
 async function main() {

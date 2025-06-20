@@ -6,6 +6,7 @@ import uploadRoutes from "./modules/upload/upload.routes";
 import consolesRouter from "./modules/console/consoles.routes";
 import brandsRouter from "./modules/brand/brands.routes";
 import { AppError } from "./shared/errors";
+import userConsoleRouter from "./modules/userConsole/userConsole.routes";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/brands", brandsRouter);
 
 // 3.1. Perfil do usuário
 app.use("/api/user", userProfileRouter);
+app.use("/api/user-consoles", userConsoleRouter);
 
 app.use("/api/uploads", uploadRoutes);
 

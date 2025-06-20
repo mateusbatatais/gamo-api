@@ -133,16 +133,34 @@ model UserItem {
   console    Console    @relation(fields: [consoleId], references: [id])
 }
 
+enum ConsoleStatus {
+  OWNED
+  SELLING
+  LOOKING_FOR
+}
+
+enum ItemCondition {
+  NEW
+  USED
+  REFURBISHED
+}
+
 model UserConsole {
-  id               Int      @id @default(autoincrement())
+  id               Int            @id @default(autoincrement())
   userId           Int
   consoleId        Int
   consoleVariantId Int
   skinId           Int? // opcional
-  customSkin       String?
-  note             String?
-  photoUrl         String?
-  createdAt        DateTime @default(now())
+  customSkin       String? // opcional
+  description      String? // nova descrição
+  status           ConsoleStatus // alterado para o novo enum
+  price            Float? // preço
+  hasBox           Boolean?       @default(false) // possui caixa?
+  hasManual        Boolean?       @default(false) // possui manual?
+  condition        ItemCondition? // condição (NEW, USED, etc.)
+  acceptsTrade     Boolean?       @default(false) // aceita troca?
+  photoUrl         String? // URL da foto principal
+  createdAt        DateTime       @default(now())
 
   user    User           @relation(fields: [userId], references: [id])
   console Console        @relation(fields: [consoleId], references: [id])
