@@ -1,667 +1,599 @@
+// prisma/seeds/variants.ts
 import { PrismaClient } from "@prisma/client";
-import { createConsoles } from "./consoleSeed";
+import { createTranslations } from "./helpers";
 
-const db = new PrismaClient();
+interface VariantDefinition {
+  slug: string;
+  consoleSlug: string;
+  namePt: string;
+  nameEn: string;
+  launchDate: Date;
+  storage: string;
+  imageUrl: string;
+}
 
-export async function createConsoleVariants() {
-  // Obter todos os consoles
-  const consoles = await createConsoles();
+export async function createVariants(db: PrismaClient, consoles: Record<string, { id: number }>) {
+  const variantDefinitions: VariantDefinition[] = [
+    // Sony PlayStation 1
+    {
+      slug: "ps1-fat",
+      consoleSlug: "playstation-1",
+      namePt: "Modelo Original",
+      nameEn: "Original Model",
+      launchDate: new Date("1994-12-03"),
+      storage: "1 MB",
+      imageUrl: "images/consoles/sony/ps1-fat.webp",
+    },
+    {
+      slug: "ps1-slim",
+      consoleSlug: "playstation-1",
+      namePt: "PS One",
+      nameEn: "PS One",
+      launchDate: new Date("2000-07-07"),
+      storage: "1 MB",
+      imageUrl: "images/consoles/sony/ps1-slim.webp",
+    },
 
-  // Função auxiliar para criar variações
-  const createVariant = async (
-    consoleId: number,
-    slug: string,
-    namePt: string,
-    nameEn: string,
-    launchDate: Date,
-    storage: string,
-    imageUrl: string,
-  ) => {
-    return db.consoleVariant.upsert({
-      where: { consoleId_slug: { consoleId, slug } },
+    // Sony PlayStation 2
+    {
+      slug: "ps2-fat",
+      consoleSlug: "playstation-2",
+      namePt: "Modelo Original",
+      nameEn: "Original Model",
+      launchDate: new Date("2000-03-04"),
+      storage: "40 GB",
+      imageUrl: "images/consoles/sony/ps2-fat.webp",
+    },
+    {
+      slug: "ps2-slim",
+      consoleSlug: "playstation-2",
+      namePt: "Slim",
+      nameEn: "Slim",
+      launchDate: new Date("2004-11-01"),
+      storage: "40 GB",
+      imageUrl: "images/consoles/sony/ps2-slim.webp",
+    },
+
+    // Sony PlayStation 3
+    {
+      slug: "ps3-fat",
+      consoleSlug: "playstation-3",
+      namePt: "Fat",
+      nameEn: "Fat",
+      launchDate: new Date("2006-11-11"),
+      storage: "20/60/80 GB",
+      imageUrl: "images/consoles/sony/ps3-fat.webp",
+    },
+    {
+      slug: "ps3-slim",
+      consoleSlug: "playstation-3",
+      namePt: "Slim",
+      nameEn: "Slim",
+      launchDate: new Date("2009-09-01"),
+      storage: "120/250/500 GB",
+      imageUrl: "images/consoles/sony/ps3-slim.webp",
+    },
+    {
+      slug: "ps3-super-slim",
+      consoleSlug: "playstation-3",
+      namePt: "Super Slim",
+      nameEn: "Super Slim",
+      launchDate: new Date("2012-09-01"),
+      storage: "250/500 GB",
+      imageUrl: "images/consoles/sony/ps3-super-slim.webp",
+    },
+
+    // Sony PlayStation 4
+    {
+      slug: "ps4-fat",
+      consoleSlug: "playstation-4",
+      namePt: "Original",
+      nameEn: "Original",
+      launchDate: new Date("2013-11-15"),
+      storage: "500 GB",
+      imageUrl: "images/consoles/sony/ps4-fat.webp",
+    },
+    {
+      slug: "ps4-slim",
+      consoleSlug: "playstation-4",
+      namePt: "Slim",
+      nameEn: "Slim",
+      launchDate: new Date("2016-09-15"),
+      storage: "500 GB / 1 TB",
+      imageUrl: "images/consoles/sony/ps4-slim.webp",
+    },
+    {
+      slug: "ps4-pro",
+      consoleSlug: "playstation-4",
+      namePt: "Pro",
+      nameEn: "Pro",
+      launchDate: new Date("2016-11-10"),
+      storage: "1 TB",
+      imageUrl: "images/consoles/sony/ps4-pro.webp",
+    },
+
+    // Sony PlayStation 5
+    {
+      slug: "ps5-standard",
+      consoleSlug: "playstation-5",
+      namePt: "Com Leitor de Discos",
+      nameEn: "Standard Edition",
+      launchDate: new Date("2020-11-12"),
+      storage: "825 GB",
+      imageUrl: "images/consoles/sony/ps5-standard.webp",
+    },
+    {
+      slug: "ps5-digital",
+      consoleSlug: "playstation-5",
+      namePt: "Digital Edition",
+      nameEn: "Digital Edition",
+      launchDate: new Date("2020-11-12"),
+      storage: "825 GB",
+      imageUrl: "images/consoles/sony/ps5-digital.webp",
+    },
+    {
+      slug: "ps5-slim",
+      consoleSlug: "playstation-5",
+      namePt: "Slim",
+      nameEn: "Slim",
+      launchDate: new Date("2023-11-10"),
+      storage: "1 TB",
+      imageUrl: "images/consoles/sony/ps5-slim.webp",
+    },
+    {
+      slug: "ps5-pro",
+      consoleSlug: "playstation-5",
+      namePt: "Pro",
+      nameEn: "Pro",
+      launchDate: new Date("2024-11-10"),
+      storage: "1 TB",
+      imageUrl: "images/consoles/sony/ps5-pro.webp",
+    },
+
+    // Microsoft Xbox
+    {
+      slug: "xbox-fat",
+      consoleSlug: "xbox",
+      namePt: "Original",
+      nameEn: "Original",
+      launchDate: new Date("2001-11-15"),
+      storage: "8/10 GB",
+      imageUrl: "images/consoles/microsoft/xbox-fat.webp",
+    },
+
+    // Microsoft Xbox 360
+    {
+      slug: "xbox360-fat",
+      consoleSlug: "xbox-360",
+      namePt: "Original",
+      nameEn: "Original",
+      launchDate: new Date("2005-11-22"),
+      storage: "20/60/120 GB",
+      imageUrl: "images/consoles/microsoft/xbox360-fat.webp",
+    },
+    {
+      slug: "xbox360-slim",
+      consoleSlug: "xbox-360",
+      namePt: "Slim",
+      nameEn: "Slim",
+      launchDate: new Date("2010-06-14"),
+      storage: "250 GB",
+      imageUrl: "images/consoles/microsoft/xbox360-slim.webp",
+    },
+    {
+      slug: "xbox360-e",
+      consoleSlug: "xbox-360",
+      namePt: "Modelo E",
+      nameEn: "E Model",
+      launchDate: new Date("2013-06-10"),
+      storage: "250 GB",
+      imageUrl: "images/consoles/microsoft/xbox360-e.webp",
+    },
+
+    // Microsoft Xbox One
+    {
+      slug: "xboxone-fat",
+      consoleSlug: "xbox-one",
+      namePt: "Original",
+      nameEn: "Original",
+      launchDate: new Date("2013-11-22"),
+      storage: "500 GB",
+      imageUrl: "images/consoles/microsoft/xbox-one-fat.webp",
+    },
+    {
+      slug: "xboxone-s",
+      consoleSlug: "xbox-one",
+      namePt: "One S",
+      nameEn: "One S",
+      launchDate: new Date("2016-08-02"),
+      storage: "500 GB / 1 TB / 2 TB",
+      imageUrl: "images/consoles/microsoft/xbox-one-s.webp",
+    },
+    {
+      slug: "xboxone-x",
+      consoleSlug: "xbox-one",
+      namePt: "One X",
+      nameEn: "One X",
+      launchDate: new Date("2017-11-07"),
+      storage: "1 TB",
+      imageUrl: "images/consoles/microsoft/xbox-one-x.webp",
+    },
+
+    // Microsoft Xbox Series
+    {
+      slug: "xboxseriesx-standard",
+      consoleSlug: "xbox-series-x",
+      namePt: "Série X",
+      nameEn: "Series X",
+      launchDate: new Date("2020-11-10"),
+      storage: "1 TB",
+      imageUrl: "images/consoles/microsoft/xbox-series-x.webp",
+    },
+    {
+      slug: "xboxseriess-standard",
+      consoleSlug: "xbox-series-s",
+      namePt: "Série S",
+      nameEn: "Series S",
+      launchDate: new Date("2020-11-10"),
+      storage: "512 GB",
+      imageUrl: "images/consoles/microsoft/xbox-series-s.webp",
+    },
+
+    // Nintendo NES
+    {
+      slug: "nes-front-loader",
+      consoleSlug: "nes",
+      namePt: "Front Loader",
+      nameEn: "Front Loader",
+      launchDate: new Date("1985-07-15"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/nintendo/nes-front.webp",
+    },
+    {
+      slug: "nes-top-loader",
+      consoleSlug: "nes",
+      namePt: "Top Loader",
+      nameEn: "Top Loader",
+      launchDate: new Date("1993-06-01"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/nintendo/nes-top.webp",
+    },
+
+    // Nintendo Game Boy
+    {
+      slug: "gameboy-original",
+      consoleSlug: "game-boy",
+      namePt: "Original",
+      nameEn: "Original",
+      launchDate: new Date("1989-04-21"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/nintendo/gb-original.webp",
+    },
+    {
+      slug: "gameboy-pocket",
+      consoleSlug: "game-boy",
+      namePt: "Pocket",
+      nameEn: "Pocket",
+      launchDate: new Date("1996-07-21"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/nintendo/gb-pocket.webp",
+    },
+    {
+      slug: "gameboy-color",
+      consoleSlug: "game-boy",
+      namePt: "Color",
+      nameEn: "Color",
+      launchDate: new Date("1998-10-21"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/nintendo/gbc.webp",
+    },
+
+    // Nintendo Super Nintendo
+    {
+      slug: "snes-original",
+      consoleSlug: "super-nintendo",
+      namePt: "Modelo Original",
+      nameEn: "Original Model",
+      launchDate: new Date("1990-08-23"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/nintendo/snes-original.webp",
+    },
+    {
+      slug: "snes-junior",
+      consoleSlug: "super-nintendo",
+      namePt: "Snes Jr",
+      nameEn: "Snes Jr",
+      launchDate: new Date("1997-10-01"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/nintendo/snes-jr.webp",
+    },
+
+    // Nintendo 64
+    {
+      slug: "n64-standard",
+      consoleSlug: "nintendo-64",
+      namePt: "Modelo Padrão",
+      nameEn: "Standard Model",
+      launchDate: new Date("1996-09-29"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/nintendo/n64.webp",
+    },
+
+    // Nintendo GameCube
+    {
+      slug: "gamecube-standard",
+      consoleSlug: "gamecube",
+      namePt: "Modelo Padrão",
+      nameEn: "Standard Model",
+      launchDate: new Date("2001-09-14"),
+      storage: "Proprietary Disc",
+      imageUrl: "images/consoles/nintendo/gamecube.webp",
+    },
+
+    // Nintendo DS
+    {
+      slug: "ds-original",
+      consoleSlug: "nintendo-ds",
+      namePt: "DS Original",
+      nameEn: "DS Original",
+      launchDate: new Date("2004-11-21"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/nintendo/ds.webp",
+    },
+    {
+      slug: "ds-lite",
+      consoleSlug: "nintendo-ds",
+      namePt: "DS Lite",
+      nameEn: "DS Lite",
+      launchDate: new Date("2006-03-02"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/nintendo/ds-lite.webp",
+    },
+
+    // Nintendo Wii
+    {
+      slug: "wii-original",
+      consoleSlug: "wii",
+      namePt: "Original",
+      nameEn: "Original",
+      launchDate: new Date("2006-11-19"),
+      storage: "512 MB",
+      imageUrl: "images/consoles/nintendo/wii.webp",
+    },
+    {
+      slug: "wii-mini",
+      consoleSlug: "wii",
+      namePt: "Mini",
+      nameEn: "Mini",
+      launchDate: new Date("2012-11-18"),
+      storage: "512 MB",
+      imageUrl: "images/consoles/nintendo/wii-mini.webp",
+    },
+
+    // Nintendo 3DS
+    {
+      slug: "3ds-original",
+      consoleSlug: "nintendo-3ds",
+      namePt: "3DS Original",
+      nameEn: "3DS Original",
+      launchDate: new Date("2011-02-26"),
+      storage: "2 GB",
+      imageUrl: "images/consoles/nintendo/3ds.webp",
+    },
+    {
+      slug: "3ds-xl",
+      consoleSlug: "nintendo-3ds",
+      namePt: "3DS XL",
+      nameEn: "3DS XL",
+      launchDate: new Date("2012-07-28"),
+      storage: "4 GB",
+      imageUrl: "images/consoles/nintendo/3ds-xl.webp",
+    },
+
+    // Nintendo Wii U
+    {
+      slug: "wiiu-basic",
+      consoleSlug: "wii-u",
+      namePt: "Basic",
+      nameEn: "Basic",
+      launchDate: new Date("2012-11-18"),
+      storage: "8 GB",
+      imageUrl: "images/consoles/nintendo/wiiu-basic.webp",
+    },
+    {
+      slug: "wiiu-deluxe",
+      consoleSlug: "wii-u",
+      namePt: "Deluxe",
+      nameEn: "Deluxe",
+      launchDate: new Date("2012-11-18"),
+      storage: "32 GB",
+      imageUrl: "images/consoles/nintendo/wiiu-deluxe.webp",
+    },
+
+    // Nintendo Switch
+    {
+      slug: "switch-standard",
+      consoleSlug: "nintendo-switch",
+      namePt: "Standard",
+      nameEn: "Standard",
+      launchDate: new Date("2017-03-03"),
+      storage: "32 GB",
+      imageUrl: "images/consoles/nintendo/switch.webp",
+    },
+    {
+      slug: "switch-oled",
+      consoleSlug: "nintendo-switch",
+      namePt: "OLED",
+      nameEn: "OLED",
+      launchDate: new Date("2021-10-08"),
+      storage: "64 GB",
+      imageUrl: "images/consoles/nintendo/switch-oled.webp",
+    },
+    {
+      slug: "switch-lite",
+      consoleSlug: "nintendo-switch",
+      namePt: "Lite",
+      nameEn: "Lite",
+      launchDate: new Date("2019-09-20"),
+      storage: "32 GB",
+      imageUrl: "images/consoles/nintendo/switch-lite.webp",
+    },
+
+    // Sega Master System
+    {
+      slug: "mastersystem-original",
+      consoleSlug: "sega-master-system",
+      namePt: "Modelo 1",
+      nameEn: "Model 1",
+      launchDate: new Date("1985-10-20"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/sega/master-system.webp",
+    },
+    {
+      slug: "mastersystem-ii",
+      consoleSlug: "sega-master-system",
+      namePt: "Master System II",
+      nameEn: "Master System II",
+      launchDate: new Date("1990-01-01"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/sega/master-system-ii.webp",
+    },
+
+    // Sega Mega Drive
+    {
+      slug: "megadrive-model1",
+      consoleSlug: "sega-mega-drive",
+      namePt: "Modelo 1",
+      nameEn: "Model 1",
+      launchDate: new Date("1988-10-29"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/sega/megadrive-model1.webp",
+    },
+    {
+      slug: "megadrive-model2",
+      consoleSlug: "sega-mega-drive",
+      namePt: "Modelo 2",
+      nameEn: "Model 2",
+      launchDate: new Date("1993-01-01"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/sega/megadrive-model2.webp",
+    },
+
+    // Sega Saturn
+    {
+      slug: "saturn-model1",
+      consoleSlug: "sega-saturn",
+      namePt: "Modelo 1",
+      nameEn: "Model 1",
+      launchDate: new Date("1994-11-22"),
+      storage: "CD",
+      imageUrl: "images/consoles/sega/saturn-model1.webp",
+    },
+    {
+      slug: "saturn-model2",
+      consoleSlug: "sega-saturn",
+      namePt: "Modelo 2",
+      nameEn: "Model 2",
+      launchDate: new Date("1996-01-01"),
+      storage: "CD",
+      imageUrl: "images/consoles/sega/saturn-model2.webp",
+    },
+
+    // Sega Dreamcast
+    {
+      slug: "dreamcast-standard",
+      consoleSlug: "sega-dreamcast",
+      namePt: "Modelo Padrão",
+      nameEn: "Standard Model",
+      launchDate: new Date("1999-11-27"),
+      storage: "GD-ROM",
+      imageUrl: "images/consoles/sega/dreamcast.webp",
+    },
+
+    // Atari 2600
+    {
+      slug: "atari2600-heavy-sixer",
+      consoleSlug: "atari-2600",
+      namePt: "Heavy Sixer",
+      nameEn: "Heavy Sixer",
+      launchDate: new Date("1977-09-11"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/atari/2600-heavy.webp",
+    },
+    {
+      slug: "atari2600-light-sixer",
+      consoleSlug: "atari-2600",
+      namePt: "Light Sixer",
+      nameEn: "Light Sixer",
+      launchDate: new Date("1978-01-01"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/atari/2600-light.webp",
+    },
+    {
+      slug: "atari2600-4-switch",
+      consoleSlug: "atari-2600",
+      namePt: "4 Switch",
+      nameEn: "4 Switch",
+      launchDate: new Date("1980-01-01"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/atari/2600-4switch.webp",
+    },
+    {
+      slug: "atari2600-junior",
+      consoleSlug: "atari-2600",
+      namePt: "Junior",
+      nameEn: "Junior",
+      launchDate: new Date("1986-01-01"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/atari/2600-junior.webp",
+    },
+
+    // Atari 7800
+    {
+      slug: "atari7800-standard",
+      consoleSlug: "atari-7800",
+      namePt: "Modelo Padrão",
+      nameEn: "Standard Model",
+      launchDate: new Date("1986-05-01"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/atari/7800.webp",
+    },
+
+    // Atari 5200
+    {
+      slug: "atari5200-standard",
+      consoleSlug: "atari-5200",
+      namePt: "Modelo Padrão",
+      nameEn: "Standard Model",
+      launchDate: new Date("1982-11-01"),
+      storage: "Cartucho",
+      imageUrl: "images/consoles/atari/5200.webp",
+    },
+  ];
+
+  const createdVariants: Record<string, Awaited<ReturnType<typeof db.consoleVariant.upsert>>> = {};
+
+  for (const variant of variantDefinitions) {
+    const consoleId = consoles[variant.consoleSlug]?.id;
+    if (!consoleId) {
+      throw new Error(`Console não encontrado: ${variant.consoleSlug}`);
+    }
+
+    const createdVariant = await db.consoleVariant.upsert({
+      where: { consoleId_slug: { consoleId, slug: variant.slug } },
       update: {},
       create: {
         consoleId,
-        slug,
-        launchDate,
-        storage,
-        imageUrl,
-        translations: {
-          create: [
-            { locale: "pt", name: namePt },
-            { locale: "en", name: nameEn },
-          ],
-        },
+        slug: variant.slug,
+        launchDate: variant.launchDate,
+        storage: variant.storage,
+        imageUrl: variant.imageUrl,
+        translations: createTranslations([{ pt: variant.namePt, en: variant.nameEn }]),
       },
     });
-  };
 
-  // Sony PlayStation
-  const ps1Fat = await createVariant(
-    consoles.ps1.id,
-    "ps1-fat",
-    "Modelo Original",
-    "Original Model",
-    new Date("1994-12-03"),
-    "1 MB",
-    "images/consoles/sony/ps1-fat.webp",
-  );
+    createdVariants[variant.slug] = createdVariant;
+  }
 
-  const ps1Slim = await createVariant(
-    consoles.ps1.id,
-    "ps1-slim",
-    "PS One",
-    "PS One",
-    new Date("2000-07-07"),
-    "1 MB",
-    "images/consoles/sony/ps1-slim.webp",
-  );
-
-  const ps2Fat = await createVariant(
-    consoles.ps2.id,
-    "ps2-fat",
-    "Modelo Original",
-    "Original Model",
-    new Date("2000-03-04"),
-    "40 GB",
-    "images/consoles/sony/ps2-fat.webp",
-  );
-
-  const ps2Slim = await createVariant(
-    consoles.ps2.id,
-    "ps2-slim",
-    "Slim",
-    "Slim",
-    new Date("2004-11-01"),
-    "40 GB",
-    "images/consoles/sony/ps2-slim.webp",
-  );
-
-  const ps3Fat = await createVariant(
-    consoles.ps3.id,
-    "ps3-fat",
-    "Fat",
-    "Fat",
-    new Date("2006-11-11"),
-    "20/60/80 GB",
-    "images/consoles/sony/ps3-fat.webp",
-  );
-
-  const ps3Slim = await createVariant(
-    consoles.ps3.id,
-    "ps3-slim",
-    "Slim",
-    "Slim",
-    new Date("2009-09-01"),
-    "120/250/500 GB",
-    "images/consoles/sony/ps3-slim.webp",
-  );
-
-  const ps3SuperSlim = await createVariant(
-    consoles.ps3.id,
-    "ps3-super-slim",
-    "Super Slim",
-    "Super Slim",
-    new Date("2012-09-01"),
-    "250/500 GB",
-    "images/consoles/sony/ps3-super-slim.webp",
-  );
-
-  const ps4Fat = await createVariant(
-    consoles.ps4.id,
-    "ps4-fat",
-    "Original",
-    "Original",
-    new Date("2013-11-15"),
-    "500 GB",
-    "images/consoles/sony/ps4-fat.webp",
-  );
-
-  const ps4Slim = await createVariant(
-    consoles.ps4.id,
-    "ps4-slim",
-    "Slim",
-    "Slim",
-    new Date("2016-09-15"),
-    "500 GB / 1 TB",
-    "images/consoles/sony/ps4-slim.webp",
-  );
-
-  const ps4Pro = await createVariant(
-    consoles.ps4.id,
-    "ps4-pro",
-    "Pro",
-    "Pro",
-    new Date("2016-11-10"),
-    "1 TB",
-    "images/consoles/sony/ps4-pro.webp",
-  );
-
-  const ps5Standard = await createVariant(
-    consoles.ps5.id,
-    "ps5-standard",
-    "Com Leitor de Discos",
-    "Standard Edition",
-    new Date("2020-11-12"),
-    "825 GB",
-    "images/consoles/sony/ps5-standard.webp",
-  );
-
-  const ps5Digital = await createVariant(
-    consoles.ps5.id,
-    "ps5-digital",
-    "Digital Edition",
-    "Digital Edition",
-    new Date("2020-11-12"),
-    "825 GB",
-    "images/consoles/sony/ps5-digital.webp",
-  );
-
-  const ps5Slim = await createVariant(
-    consoles.ps5.id,
-    "ps5-slim",
-    "Slim",
-    "Slim",
-    new Date("2023-11-10"),
-    "1 TB",
-    "images/consoles/sony/ps5-slim.webp",
-  );
-
-  const ps5Pro = await createVariant(
-    consoles.ps5.id,
-    "ps5-pro",
-    "Pro",
-    "Pro",
-    new Date("2024-11-10"), // Data estimada
-    "1 TB",
-    "images/consoles/sony/ps5-pro.webp",
-  );
-
-  // Microsoft Xbox
-  const xboxFat = await createVariant(
-    consoles.xbox.id,
-    "xbox-fat",
-    "Original",
-    "Original",
-    new Date("2001-11-15"),
-    "8/10 GB",
-    "images/consoles/microsoft/xbox-fat.webp",
-  );
-
-  const xbox360Fat = await createVariant(
-    consoles.xbox360.id,
-    "xbox360-fat",
-    "Original",
-    "Original",
-    new Date("2005-11-22"),
-    "20/60/120 GB",
-    "images/consoles/microsoft/xbox360-fat.webp",
-  );
-
-  const xbox360Slim = await createVariant(
-    consoles.xbox360.id,
-    "xbox360-slim",
-    "Slim",
-    "Slim",
-    new Date("2010-06-14"),
-    "250 GB",
-    "images/consoles/microsoft/xbox360-slim.webp",
-  );
-
-  const xbox360E = await createVariant(
-    consoles.xbox360.id,
-    "xbox360-e",
-    "Modelo E",
-    "E Model",
-    new Date("2013-06-10"),
-    "250 GB",
-    "images/consoles/microsoft/xbox360-e.webp",
-  );
-
-  const xboxOneFat = await createVariant(
-    consoles.xboxOne.id,
-    "xboxone-fat",
-    "Original",
-    "Original",
-    new Date("2013-11-22"),
-    "500 GB",
-    "images/consoles/microsoft/xbox-one-fat.webp",
-  );
-
-  const xboxOneS = await createVariant(
-    consoles.xboxOne.id,
-    "xboxone-s",
-    "One S",
-    "One S",
-    new Date("2016-08-02"),
-    "500 GB / 1 TB / 2 TB",
-    "images/consoles/microsoft/xbox-one-s.webp",
-  );
-
-  const xboxOneX = await createVariant(
-    consoles.xboxOne.id,
-    "xboxone-x",
-    "One X",
-    "One X",
-    new Date("2017-11-07"),
-    "1 TB",
-    "images/consoles/microsoft/xbox-one-x.webp",
-  );
-
-  const xboxSeriesX = await createVariant(
-    consoles.xboxSeriesX.id,
-    "xboxseriesx-standard",
-    "Série X",
-    "Series X",
-    new Date("2020-11-10"),
-    "1 TB",
-    "images/consoles/microsoft/xbox-series-x.webp",
-  );
-
-  const xboxSeriesS = await createVariant(
-    consoles.xboxSeriesS.id,
-    "xboxseriess-standard",
-    "Série S",
-    "Series S",
-    new Date("2020-11-10"),
-    "512 GB",
-    "images/consoles/microsoft/xbox-series-s.webp",
-  );
-
-  // Nintendo
-  const nesFrontLoader = await createVariant(
-    consoles.nes.id,
-    "nes-front-loader",
-    "Front Loader",
-    "Front Loader",
-    new Date("1985-07-15"),
-    "Cartucho",
-    "images/consoles/nintendo/nes-front.webp",
-  );
-
-  const nesTopLoader = await createVariant(
-    consoles.nes.id,
-    "nes-top-loader",
-    "Top Loader",
-    "Top Loader",
-    new Date("1993-06-01"),
-    "Cartucho",
-    "images/consoles/nintendo/nes-top.webp",
-  );
-
-  const gameBoyOriginal = await createVariant(
-    consoles.gameBoy.id,
-    "gameboy-original",
-    "Original",
-    "Original",
-    new Date("1989-04-21"),
-    "Cartucho",
-    "images/consoles/nintendo/gb-original.webp",
-  );
-
-  const gameBoyPocket = await createVariant(
-    consoles.gameBoy.id,
-    "gameboy-pocket",
-    "Pocket",
-    "Pocket",
-    new Date("1996-07-21"),
-    "Cartucho",
-    "images/consoles/nintendo/gb-pocket.webp",
-  );
-
-  const gameBoyColor = await createVariant(
-    consoles.gameBoy.id,
-    "gameboy-color",
-    "Color",
-    "Color",
-    new Date("1998-10-21"),
-    "Cartucho",
-    "images/consoles/nintendo/gbc.webp",
-  );
-
-  const snesOriginal = await createVariant(
-    consoles.snes.id,
-    "snes-original",
-    "Modelo Original",
-    "Original Model",
-    new Date("1990-08-23"),
-    "Cartucho",
-    "images/consoles/nintendo/snes-original.webp",
-  );
-
-  const snesJunior = await createVariant(
-    consoles.snes.id,
-    "snes-junior",
-    "Snes Jr",
-    "Snes Jr",
-    new Date("1997-10-01"),
-    "Cartucho",
-    "images/consoles/nintendo/snes-jr.webp",
-  );
-
-  const n64Standard = await createVariant(
-    consoles.n64.id,
-    "n64-standard",
-    "Modelo Padrão",
-    "Standard Model",
-    new Date("1996-09-29"),
-    "Cartucho",
-    "images/consoles/nintendo/n64.webp",
-  );
-
-  const gameCubeStandard = await createVariant(
-    consoles.gameCube.id,
-    "gamecube-standard",
-    "Modelo Padrão",
-    "Standard Model",
-    new Date("2001-09-14"),
-    "Proprietary Disc",
-    "images/consoles/nintendo/gamecube.webp",
-  );
-
-  const dsOriginal = await createVariant(
-    consoles.ds.id,
-    "ds-original",
-    "DS Original",
-    "DS Original",
-    new Date("2004-11-21"),
-    "Cartucho",
-    "images/consoles/nintendo/ds.webp",
-  );
-
-  const dsLite = await createVariant(
-    consoles.ds.id,
-    "ds-lite",
-    "DS Lite",
-    "DS Lite",
-    new Date("2006-03-02"),
-    "Cartucho",
-    "images/consoles/nintendo/ds-lite.webp",
-  );
-
-  const wiiOriginal = await createVariant(
-    consoles.wii.id,
-    "wii-original",
-    "Original",
-    "Original",
-    new Date("2006-11-19"),
-    "512 MB",
-    "images/consoles/nintendo/wii.webp",
-  );
-
-  const wiiMini = await createVariant(
-    consoles.wii.id,
-    "wii-mini",
-    "Mini",
-    "Mini",
-    new Date("2012-11-18"),
-    "512 MB",
-    "images/consoles/nintendo/wii-mini.webp",
-  );
-
-  const threeDSOriginal = await createVariant(
-    consoles.threeDS.id,
-    "3ds-original",
-    "3DS Original",
-    "3DS Original",
-    new Date("2011-02-26"),
-    "2 GB",
-    "images/consoles/nintendo/3ds.webp",
-  );
-
-  const threeDSXL = await createVariant(
-    consoles.threeDS.id,
-    "3ds-xl",
-    "3DS XL",
-    "3DS XL",
-    new Date("2012-07-28"),
-    "4 GB",
-    "images/consoles/nintendo/3ds-xl.webp",
-  );
-
-  const wiiUBasic = await createVariant(
-    consoles.wiiU.id,
-    "wiiu-basic",
-    "Basic",
-    "Basic",
-    new Date("2012-11-18"),
-    "8 GB",
-    "images/consoles/nintendo/wiiu-basic.webp",
-  );
-
-  const wiiUDeluxe = await createVariant(
-    consoles.wiiU.id,
-    "wiiu-deluxe",
-    "Deluxe",
-    "Deluxe",
-    new Date("2012-11-18"),
-    "32 GB",
-    "images/consoles/nintendo/wiiu-deluxe.webp",
-  );
-
-  const switchStandard = await createVariant(
-    consoles.switchConsole.id,
-    "switch-standard",
-    "Standard",
-    "Standard",
-    new Date("2017-03-03"),
-    "32 GB",
-    "images/consoles/nintendo/switch.webp",
-  );
-
-  const switchOLED = await createVariant(
-    consoles.switchConsole.id,
-    "switch-oled",
-    "OLED",
-    "OLED",
-    new Date("2021-10-08"),
-    "64 GB",
-    "images/consoles/nintendo/switch-oled.webp",
-  );
-
-  const switchLite = await createVariant(
-    consoles.switchConsole.id,
-    "switch-lite",
-    "Lite",
-    "Lite",
-    new Date("2019-09-20"),
-    "32 GB",
-    "images/consoles/nintendo/switch-lite.webp",
-  );
-
-  // Sega
-  const masterSystemOriginal = await createVariant(
-    consoles.masterSystem.id,
-    "mastersystem-original",
-    "Modelo 1",
-    "Model 1",
-    new Date("1985-10-20"),
-    "Cartucho",
-    "images/consoles/sega/master-system.webp",
-  );
-
-  const masterSystemII = await createVariant(
-    consoles.masterSystem.id,
-    "mastersystem-ii",
-    "Master System II",
-    "Master System II",
-    new Date("1990-01-01"),
-    "Cartucho",
-    "images/consoles/sega/master-system-ii.webp",
-  );
-
-  const megaDriveModel1 = await createVariant(
-    consoles.megaDrive.id,
-    "megadrive-model1",
-    "Modelo 1",
-    "Model 1",
-    new Date("1988-10-29"),
-    "Cartucho",
-    "images/consoles/sega/megadrive-model1.webp",
-  );
-
-  const megaDriveModel2 = await createVariant(
-    consoles.megaDrive.id,
-    "megadrive-model2",
-    "Modelo 2",
-    "Model 2",
-    new Date("1993-01-01"),
-    "Cartucho",
-    "images/consoles/sega/megadrive-model2.webp",
-  );
-
-  const saturnModel1 = await createVariant(
-    consoles.saturn.id,
-    "saturn-model1",
-    "Modelo 1",
-    "Model 1",
-    new Date("1994-11-22"),
-    "CD",
-    "images/consoles/sega/saturn-model1.webp",
-  );
-
-  const saturnModel2 = await createVariant(
-    consoles.saturn.id,
-    "saturn-model2",
-    "Modelo 2",
-    "Model 2",
-    new Date("1996-01-01"),
-    "CD",
-    "images/consoles/sega/saturn-model2.webp",
-  );
-
-  const dreamcastStandard = await createVariant(
-    consoles.dreamcast.id,
-    "dreamcast-standard",
-    "Modelo Padrão",
-    "Standard Model",
-    new Date("1999-11-27"),
-    "GD-ROM",
-    "images/consoles/sega/dreamcast.webp",
-  );
-
-  // Atari
-  const atari2600Heavy = await createVariant(
-    consoles.atari2600.id,
-    "atari2600-heavy-sixer",
-    "Heavy Sixer",
-    "Heavy Sixer",
-    new Date("1977-09-11"),
-    "Cartucho",
-    "images/consoles/atari/2600-heavy.webp",
-  );
-
-  const atari2600Light = await createVariant(
-    consoles.atari2600.id,
-    "atari2600-light-sixer",
-    "Light Sixer",
-    "Light Sixer",
-    new Date("1978-01-01"),
-    "Cartucho",
-    "images/consoles/atari/2600-light.webp",
-  );
-
-  const atari26004Switch = await createVariant(
-    consoles.atari2600.id,
-    "atari2600-4-switch",
-    "4 Switch",
-    "4 Switch",
-    new Date("1980-01-01"),
-    "Cartucho",
-    "images/consoles/atari/2600-4switch.webp",
-  );
-
-  const atari2600Junior = await createVariant(
-    consoles.atari2600.id,
-    "atari2600-junior",
-    "Junior",
-    "Junior",
-    new Date("1986-01-01"),
-    "Cartucho",
-    "images/consoles/atari/2600-junior.webp",
-  );
-
-  const atari7800Standard = await createVariant(
-    consoles.atari7800.id,
-    "atari7800-standard",
-    "Modelo Padrão",
-    "Standard Model",
-    new Date("1986-05-01"),
-    "Cartucho",
-    "images/consoles/atari/7800.webp",
-  );
-
-  const atari5200Standard = await createVariant(
-    consoles.atari5200.id,
-    "atari5200-standard",
-    "Modelo Padrão",
-    "Standard Model",
-    new Date("1982-11-01"),
-    "Cartucho",
-    "images/consoles/atari/5200.webp",
-  );
-
-  return {
-    // Sony
-    ps1Fat,
-    ps1Slim,
-    ps2Fat,
-    ps2Slim,
-    ps3Fat,
-    ps3Slim,
-    ps3SuperSlim,
-    ps4Fat,
-    ps4Slim,
-    ps4Pro,
-    ps5Standard,
-    ps5Digital,
-    ps5Slim,
-    ps5Pro,
-    // Microsoft
-    xboxFat,
-    xbox360Fat,
-    xbox360Slim,
-    xbox360E,
-    xboxOneFat,
-    xboxOneS,
-    xboxOneX,
-    xboxSeriesX,
-    xboxSeriesS,
-    // Nintendo
-    nesFrontLoader,
-    nesTopLoader,
-    gameBoyOriginal,
-    gameBoyPocket,
-    gameBoyColor,
-    snesOriginal,
-    snesJunior,
-    n64Standard,
-    gameCubeStandard,
-    dsOriginal,
-    dsLite,
-    wiiOriginal,
-    wiiMini,
-    threeDSOriginal,
-    threeDSXL,
-    wiiUBasic,
-    wiiUDeluxe,
-    switchStandard,
-    switchOLED,
-    switchLite,
-    // Sega
-    masterSystemOriginal,
-    masterSystemII,
-    megaDriveModel1,
-    megaDriveModel2,
-    saturnModel1,
-    saturnModel2,
-    dreamcastStandard,
-    // Atari
-    atari2600Heavy,
-    atari2600Light,
-    atari26004Switch,
-    atari2600Junior,
-    atari7800Standard,
-    atari5200Standard,
-  };
+  return createdVariants;
 }

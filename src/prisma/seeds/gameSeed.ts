@@ -1,9 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
-const db = new PrismaClient();
-
-export async function createGames() {
-  const mk11 = await db.game.upsert({
+export async function createGames(db: PrismaClient) {
+  await db.game.upsert({
     where: { slug: "mortal-kombat-11" },
     update: {},
     create: {
@@ -25,5 +23,5 @@ export async function createGames() {
     },
   });
 
-  return { mk11 };
+  // Adicione outros jogos aqui conforme necessário
 }

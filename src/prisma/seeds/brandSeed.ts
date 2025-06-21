@@ -1,37 +1,24 @@
 import { PrismaClient } from "@prisma/client";
 
-const db = new PrismaClient();
+export async function createBrands(db: PrismaClient) {
+  const brandsData = [
+    { slug: "sony" },
+    { slug: "microsoft" },
+    { slug: "nintendo" },
+    { slug: "sega" },
+    { slug: "atari" },
+  ];
 
-export async function createBrands() {
-  const sony = await db.brand.upsert({
-    where: { slug: "sony" },
-    update: {},
-    create: { slug: "sony" },
-  });
+  const createdBrands: Record<string, { id: number }> = {};
 
-  const microsoft = await db.brand.upsert({
-    where: { slug: "microsoft" },
-    update: {},
-    create: { slug: "microsoft" },
-  });
+  for (const brand of brandsData) {
+    const created = await db.brand.upsert({
+      where: { slug: brand.slug },
+      update: {},
+      create: brand,
+    });
+    createdBrands[brand.slug] = created;
+  }
 
-  const nintendo = await db.brand.upsert({
-    where: { slug: "nintendo" },
-    update: {},
-    create: { slug: "nintendo" },
-  });
-
-  const sega = await db.brand.upsert({
-    where: { slug: "sega" },
-    update: {},
-    create: { slug: "sega" },
-  });
-
-  const atari = await db.brand.upsert({
-    where: { slug: "atari" },
-    update: {},
-    create: { slug: "atari" },
-  });
-
-  return { sony, microsoft, nintendo, sega, atari };
+  return createdBrands as Record<string, { id: number }>;
 }

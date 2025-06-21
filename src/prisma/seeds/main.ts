@@ -1,10 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { createAdminUser } from "./seeds/userSeed";
-import { createBrands } from "./seeds/brandSeed";
-import { createConsoles } from "./seeds/consoleSeed";
-import { createVariants } from "./seeds/consoleVariantSeed";
-import { createSkins } from "./seeds/consoleSkinSeed";
-import { createGames } from "./seeds/gameSeed";
+import { createConsoles } from "./consoleSeed";
+import { createVariants } from "./consoleVariantSeed";
+import { createSkins } from "./consoleSkinSeed";
+import { createGames } from "./gameSeed";
+import { createAdminUser } from "./userSeed";
+import { createBrands } from "./brandSeed";
 
 const db = new PrismaClient();
 
