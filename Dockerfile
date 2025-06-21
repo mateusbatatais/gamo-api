@@ -6,17 +6,15 @@ FROM node:23-alpine AS builder
 RUN npm install -g pnpm
 WORKDIR /app
 
+# Cache de dependências
 COPY package.json pnpm-lock.yaml ./
-ENV NODE_ENV=development
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --prod
 
+# Copia o resto do código
 COPY . .
 
-RUN npx prisma generate
+# Build da aplicação
 RUN pnpm run build
-
-# Copia toda a estrutura src para dist
-RUN cp -r src dist/src
 
 # --------------------------
 # Stage 2: Runner
@@ -26,13 +24,16 @@ FROM node:23-alpine AS runner
 RUN npm install -g pnpm
 WORKDIR /app
 
+# Copia apenas o necessário
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/pnpm-lock.yaml ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
 
+# Configurações de produção
 ENV NODE_ENV=production
 EXPOSE 8080
 
-CMD ["pnpm", "start"]
+# Comando de inicialização otimizado
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/prisma/seeds/main.js && node dist/index.js"]
