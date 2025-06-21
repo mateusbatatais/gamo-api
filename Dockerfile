@@ -8,13 +8,16 @@ WORKDIR /app
 
 # Cache de dependências
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile 
 
 # Copia o resto do código
 COPY . .
 
 # Build da aplicação
 RUN pnpm run build
+
+# Limpeza de dependências de desenvolvimento
+RUN pnpm prune --prod
 
 # --------------------------
 # Stage 2: Runner
@@ -35,5 +38,5 @@ COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 EXPOSE 8080
 
-# Comando de inicialização otimizado
+# Comando de inicialização
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/prisma/seeds/main.js && node dist/index.js"]
