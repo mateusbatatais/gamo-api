@@ -6,9 +6,15 @@ FROM node:23-alpine AS builder
 RUN npm install -g pnpm
 WORKDIR /app
 
+# Configuração PNPM para permitir scripts
+COPY .npmrc ./
+
 # Cache de dependências
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile 
+RUN pnpm install --frozen-lockfile
+
+# Aprova scripts necessários
+RUN pnpm approve-builds @prisma/client prisma @prisma/engines
 
 # Copia o resto do código
 COPY . .
@@ -18,6 +24,7 @@ RUN pnpm run build
 
 # Limpeza de dependências de desenvolvimento
 RUN pnpm prune --prod
+
 
 # --------------------------
 # Stage 2: Runner
