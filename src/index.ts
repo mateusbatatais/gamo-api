@@ -1,5 +1,10 @@
 import app from "./app";
 
+// No início do src/index.ts
+console.log("Versão do Node:", process.version);
+console.log("Plataforma:", process.platform, process.arch);
+console.log("Prisma Path:", require.resolve("@prisma/client"));
+
 const rawPort = process.env.PORT;
 if (!rawPort) {
   console.error("❌ PORT não definida!");
