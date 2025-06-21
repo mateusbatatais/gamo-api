@@ -4,8 +4,9 @@ import { createBrands } from "./brandSeed";
 const db = new PrismaClient();
 
 export async function createConsoles() {
-  const { microsoft, nintendo, sega, atari, sony } = await createBrands(); // Agora só pegamos as marcas necessárias
+  const { microsoft, nintendo, sega, atari, sony } = await createBrands();
 
+  // Consoles Sony
   const ps1 = await db.console.upsert({
     where: { slug: "playstation-1" },
     update: {},
@@ -44,6 +45,25 @@ export async function createConsoles() {
     },
   });
 
+  const psp = await db.console.upsert({
+    where: { slug: "psp" },
+    update: {},
+    create: {
+      slug: "psp",
+      nickname: "psp",
+      brandId: sony.id,
+      releaseDate: new Date("2004-12-12"),
+      generation: 7,
+      type: "handheld",
+      translations: {
+        create: [
+          { locale: "pt", name: "PSP", description: "Portátil de 7ª geração da Sony." },
+          { locale: "en", name: "PSP", description: "Sony's 7th generation handheld." },
+        ],
+      },
+    },
+  });
+
   const ps3 = await db.console.upsert({
     where: { slug: "playstation-3" },
     update: {},
@@ -63,6 +83,25 @@ export async function createConsoles() {
     },
   });
 
+  const psVita = await db.console.upsert({
+    where: { slug: "ps-vita" },
+    update: {},
+    create: {
+      slug: "ps-vita",
+      nickname: "vita",
+      brandId: sony.id,
+      releaseDate: new Date("2011-12-17"),
+      generation: 8,
+      type: "handheld",
+      translations: {
+        create: [
+          { locale: "pt", name: "PS Vita", description: "Portátil de 8ª geração da Sony." },
+          { locale: "en", name: "PS Vita", description: "Sony's 8th generation handheld." },
+        ],
+      },
+    },
+  });
+
   const ps4 = await db.console.upsert({
     where: { slug: "playstation-4" },
     update: {},
@@ -71,7 +110,7 @@ export async function createConsoles() {
       nickname: "ps4",
       brandId: sony.id,
       releaseDate: new Date("2013-11-15"),
-      generation: 7,
+      generation: 8, // Correção: 8ª geração
       type: "desktop",
       translations: {
         create: [
@@ -100,7 +139,8 @@ export async function createConsoles() {
       },
     },
   });
-  // Consoles Microsoft (do Xbox original ao Xbox Series X/S)
+
+  // Consoles Microsoft
   const xbox = await db.console.upsert({
     where: { slug: "xbox" },
     update: {},
@@ -147,7 +187,7 @@ export async function createConsoles() {
       nickname: "xboxone",
       brandId: microsoft.id,
       releaseDate: new Date("2013-11-22"),
-      generation: 7,
+      generation: 8, // Correção: 8ª geração
       type: "desktop",
       translations: {
         create: [
@@ -212,7 +252,7 @@ export async function createConsoles() {
     },
   });
 
-  // Consoles Nintendo (de NES ao Switch)
+  // Consoles Nintendo
   const nes = await db.console.upsert({
     where: { slug: "nes" },
     update: {},
@@ -227,6 +267,25 @@ export async function createConsoles() {
         create: [
           { locale: "pt", name: "NES", description: "Console de 3ª geração da Nintendo." },
           { locale: "en", name: "NES", description: "Nintendo's 3rd generation console." },
+        ],
+      },
+    },
+  });
+
+  const gameBoy = await db.console.upsert({
+    where: { slug: "game-boy" },
+    update: {},
+    create: {
+      slug: "game-boy",
+      nickname: "gb",
+      brandId: nintendo.id,
+      releaseDate: new Date("1989-04-21"),
+      generation: 4,
+      type: "handheld",
+      translations: {
+        create: [
+          { locale: "pt", name: "Game Boy", description: "Portátil de 4ª geração da Nintendo." },
+          { locale: "en", name: "Game Boy", description: "Nintendo's 4th generation handheld." },
         ],
       },
     },
@@ -278,6 +337,44 @@ export async function createConsoles() {
     },
   });
 
+  const gameCube = await db.console.upsert({
+    where: { slug: "gamecube" },
+    update: {},
+    create: {
+      slug: "gamecube",
+      nickname: "gamecube",
+      brandId: nintendo.id,
+      releaseDate: new Date("2001-09-14"),
+      generation: 6,
+      type: "desktop",
+      translations: {
+        create: [
+          { locale: "pt", name: "GameCube", description: "Console de 6ª geração da Nintendo." },
+          { locale: "en", name: "GameCube", description: "Nintendo's 6th generation console." },
+        ],
+      },
+    },
+  });
+
+  const ds = await db.console.upsert({
+    where: { slug: "nintendo-ds" },
+    update: {},
+    create: {
+      slug: "nintendo-ds",
+      nickname: "ds",
+      brandId: nintendo.id,
+      releaseDate: new Date("2004-11-21"),
+      generation: 7,
+      type: "handheld",
+      translations: {
+        create: [
+          { locale: "pt", name: "Nintendo DS", description: "Portátil de 7ª geração da Nintendo." },
+          { locale: "en", name: "Nintendo DS", description: "Nintendo's 7th generation handheld." },
+        ],
+      },
+    },
+  });
+
   const wii = await db.console.upsert({
     where: { slug: "wii" },
     update: {},
@@ -297,6 +394,52 @@ export async function createConsoles() {
     },
   });
 
+  const threeDS = await db.console.upsert({
+    where: { slug: "nintendo-3ds" },
+    update: {},
+    create: {
+      slug: "nintendo-3ds",
+      nickname: "3ds",
+      brandId: nintendo.id,
+      releaseDate: new Date("2011-02-26"),
+      generation: 8,
+      type: "handheld",
+      translations: {
+        create: [
+          {
+            locale: "pt",
+            name: "Nintendo 3DS",
+            description: "Portátil de 8ª geração da Nintendo.",
+          },
+          {
+            locale: "en",
+            name: "Nintendo 3DS",
+            description: "Nintendo's 8th generation handheld.",
+          },
+        ],
+      },
+    },
+  });
+
+  const wiiU = await db.console.upsert({
+    where: { slug: "wii-u" },
+    update: {},
+    create: {
+      slug: "wii-u",
+      nickname: "wiiu",
+      brandId: nintendo.id,
+      releaseDate: new Date("2012-11-18"),
+      generation: 8,
+      type: "desktop",
+      translations: {
+        create: [
+          { locale: "pt", name: "Wii U", description: "Console de 8ª geração da Nintendo." },
+          { locale: "en", name: "Wii U", description: "Nintendo's 8th generation console." },
+        ],
+      },
+    },
+  });
+
   const switchConsole = await db.console.upsert({
     where: { slug: "nintendo-switch" },
     update: {},
@@ -305,18 +448,26 @@ export async function createConsoles() {
       nickname: "switch",
       brandId: nintendo.id,
       releaseDate: new Date("2017-03-03"),
-      generation: 7,
-      type: "desktop",
+      generation: 8, // Correção: 8ª geração
+      type: "hybrid",
       translations: {
         create: [
-          { locale: "pt", name: "Nintendo Switch", description: "Console híbrido da Nintendo." },
-          { locale: "en", name: "Nintendo Switch", description: "Nintendo's hybrid console." },
+          {
+            locale: "pt",
+            name: "Nintendo Switch",
+            description: "Console híbrido de 8ª geração da Nintendo.",
+          },
+          {
+            locale: "en",
+            name: "Nintendo Switch",
+            description: "Nintendo's 8th generation hybrid console.",
+          },
         ],
       },
     },
   });
 
-  // Consoles Sega (do Master System ao Dreamcast)
+  // Consoles Sega
   const masterSystem = await db.console.upsert({
     where: { slug: "sega-master-system" },
     update: {},
@@ -363,6 +514,25 @@ export async function createConsoles() {
     },
   });
 
+  const saturn = await db.console.upsert({
+    where: { slug: "sega-saturn" },
+    update: {},
+    create: {
+      slug: "sega-saturn",
+      nickname: "saturn",
+      brandId: sega.id,
+      releaseDate: new Date("1994-11-22"),
+      generation: 5,
+      type: "desktop",
+      translations: {
+        create: [
+          { locale: "pt", name: "Sega Saturn", description: "Console de 5ª geração da Sega." },
+          { locale: "en", name: "Sega Saturn", description: "Sega's 5th generation console." },
+        ],
+      },
+    },
+  });
+
   const dreamcast = await db.console.upsert({
     where: { slug: "sega-dreamcast" },
     update: {},
@@ -402,10 +572,50 @@ export async function createConsoles() {
     },
   });
 
+  const atari7800 = await db.console.upsert({
+    where: { slug: "atari-7800" },
+    update: {},
+    create: {
+      slug: "atari-7800",
+      nickname: "7800",
+      brandId: atari.id,
+      releaseDate: new Date("1986-05-01"),
+      generation: 3,
+      type: "desktop",
+      translations: {
+        create: [
+          { locale: "pt", name: "Atari 7800", description: "Console de 3ª geração da Atari." },
+          { locale: "en", name: "Atari 7800", description: "Atari's 3rd generation console." },
+        ],
+      },
+    },
+  });
+
+  const atari5200 = await db.console.upsert({
+    where: { slug: "atari-5200" },
+    update: {},
+    create: {
+      slug: "atari-5200",
+      nickname: "5200",
+      brandId: atari.id,
+      releaseDate: new Date("1982-11-01"),
+      generation: 2,
+      type: "desktop",
+      translations: {
+        create: [
+          { locale: "pt", name: "Atari 5200", description: "Console de 2ª geração da Atari." },
+          { locale: "en", name: "Atari 5200", description: "Atari's 2nd generation console." },
+        ],
+      },
+    },
+  });
+
   return {
     ps1,
     ps2,
+    psp,
     ps3,
+    psVita,
     ps4,
     ps5,
     xbox,
@@ -414,13 +624,21 @@ export async function createConsoles() {
     xboxSeriesX,
     xboxSeriesS,
     nes,
+    gameBoy,
     snes,
     n64,
+    gameCube,
+    ds,
     wii,
+    threeDS,
+    wiiU,
     switchConsole,
     masterSystem,
     megaDrive,
+    saturn,
     dreamcast,
     atari2600,
+    atari7800,
+    atari5200,
   };
 }
