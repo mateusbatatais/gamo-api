@@ -2,16 +2,18 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const db = new PrismaClient();
+const adminEmail = process.env.ADMIN_EMAIL!;
+const adminPassword = process.env.ADMIN_PASSWORD!;
 
 export async function createAdminUser() {
   await db.user.upsert({
-    where: { email: "admin@gamo.games" },
+    where: { email: adminEmail },
     update: {},
     create: {
       name: "Super Admin",
       slug: "super-admin",
-      email: "admin@gamo.games",
-      password: await bcrypt.hash("1234", 10),
+      email: adminEmail,
+      password: await bcrypt.hash(adminPassword, 10),
       role: "SUPER_ADMIN",
       emailVerified: true,
     },
