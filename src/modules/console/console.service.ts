@@ -44,6 +44,7 @@ export const getConsoleVariantWithSkins = async (slug: string, locale: string = 
 
   return {
     id: variant.id,
+    consoleId: variant.console.id,
     slug: variant.slug,
     brand: {
       id: variant.console.brand.id,
