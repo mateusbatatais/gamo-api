@@ -11,24 +11,11 @@ import publicProfileRouter from "./modules/publicProfile/publicProfile.routes";
 
 const app = express();
 
-// Middleware de log para todas as requisições
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-  console.log("Headers:", req.headers);
-  next();
-});
-
 // ---------------------------------------------------------------
 // 1. Middlewares globais
 // ---------------------------------------------------------------
 
-// 1.1. CORS com logs detalhados
-app.use((req, res, next) => {
-  console.log(`[CORS] Origin recebido: ${req.headers.origin}`);
-  console.log(`[CORS] Método: ${req.method}`);
-  next();
-});
-
+// 1.1. CORS
 app.use(
   cors({
     origin: true,
@@ -37,21 +24,6 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   }),
 );
-
-// Adicionando handler explícito para OPTIONS com logs
-app.options("*", (req, res) => {
-  console.log("[CORS] Handling OPTIONS request");
-  console.log(`[CORS] Origin: ${req.headers.origin}`);
-
-  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
-
-  console.log("[CORS] Headers setados:", res.getHeaders());
-
-  res.status(204).send();
-});
 
 // 1.2. Parser de JSON
 app.use(express.json());
