@@ -11,43 +11,45 @@ import publicProfileRouter from "./modules/publicProfile/publicProfile.routes";
 
 const app = express();
 
+// Middleware de log para todas as requisições
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  console.log("Headers:", req.headers);
+  next();
+});
+
 // ---------------------------------------------------------------
 // 1. Middlewares globais
 // ---------------------------------------------------------------
 
-// 1.1. CORS
-const allowedOrigins = ["https://www.gamo.games", "https://gamo.games", "http://localhost:3000"];
+// 1.1. CORS com logs detalhados
+app.use((req, res, next) => {
+  console.log(`[CORS] Origin recebido: ${req.headers.origin}`);
+  console.log(`[CORS] Método: ${req.method}`);
+  next();
+});
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Permitir requisições sem origin (ex: mobile apps, curl)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-        return callback(null, true);
-      }
-
-      const msg = `CORS bloqueado para: ${origin}`;
-      console.error(msg);
-      return callback(new Error(msg), false);
-    },
+    origin: true,
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   }),
 );
 
-app.options(/.*/, (req, res) => {
-  const origin = req.headers.origin || "";
+// Adicionando handler explícito para OPTIONS com logs
+app.options("*", (req, res) => {
+  console.log("[CORS] Handling OPTIONS request");
+  console.log(`[CORS] Origin: ${req.headers.origin}`);
 
-  if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-    res.header("Access-Control-Allow-Origin", origin);
-  }
-
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.header("Access-Control-Allow-Credentials", "true");
+
+  console.log("[CORS] Headers setados:", res.getHeaders());
+
   res.status(204).send();
 });
 
