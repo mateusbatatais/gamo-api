@@ -18,7 +18,7 @@ const app = express();
 // 1.1. CORS
 app.use(
   cors({
-    origin: "https://www.gamo.games",
+    origin: ["https://www.gamo.games", "https://gamo.games", "http://localhost:3000"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

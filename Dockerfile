@@ -53,7 +53,7 @@ ENV NODE_ENV=production
 EXPOSE 8080
 
 # Comando de inicialização
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+#CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
 
 # Comando reset migration
-#CMD ["sh", "-c", "npx prisma migrate reset --force && npm run seed:prod && node dist/index.js"]
+CMD ["sh", "-c", "npx prisma migrate reset --force && npm run seed:prod && node dist/index.js"]
