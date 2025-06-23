@@ -16,14 +16,40 @@ const app = express();
 // ---------------------------------------------------------------
 
 // 1.1. CORS
+const allowedOrigins = ["https://www.gamo.games", "https://gamo.games", "http://localhost:3000"];
+
 app.use(
   cors({
-    origin: ["https://www.gamo.games", "https://gamo.games", "http://localhost:3000"],
+    origin: (origin, callback) => {
+      // Permitir requisições sem origin (ex: mobile apps, curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+
+      const msg = `CORS bloqueado para: ${origin}`;
+      console.error(msg);
+      return callback(new Error(msg), false);
+    },
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   }),
 );
+
+app.options(/.*/, (req, res) => {
+  const origin = req.headers.origin || "";
+
+  if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.status(204).send();
+});
 
 // 1.2. Parser de JSON
 app.use(express.json());
