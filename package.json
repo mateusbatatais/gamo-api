@@ -21,6 +21,8 @@
     "docker:build": "docker build -t gamo-api .",
     "prisma:studio": "prisma studio",
     "prisma:reset": "prisma migrate reset --force",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:seed": "ts-node prisma/seed.ts",
     "docker:run": "docker run -p 8080:8080 gamo-api",
     "postbuild": "shx cp -r prisma/seeds dist/prisma/seeds"
   },

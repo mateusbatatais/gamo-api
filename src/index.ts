@@ -6,8 +6,7 @@ if (!rawPort) {
   process.exit(1);
 }
 
-const PORT = Number(rawPort);
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Server rodando em 0.0.0.0:${PORT}`);
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
