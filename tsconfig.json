@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "dist",
+    "outDir": "./dist",
     "types": ["node"],
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "resolveJsonModule": true,
@@ -14,5 +14,5 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "prisma/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules"]
 }
