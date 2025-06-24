@@ -36,8 +36,7 @@ FROM node:21-bookworm-slim AS runner
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Instala versão específica do PNPM
-ARG PNPM_VERSION=10.11.1 # MESMA VERSÃO DO BUILDER
-RUN npm install -g pnpm@${PNPM_VERSION}
+RUN npm install -g pnpm
 
 WORKDIR /app
 
