@@ -19,7 +19,7 @@
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "prisma:reset": "prisma migrate reset --force",
-    "prisma:resume": "pnpm migrate && pnpm seed",
+    "prisma:resume": "pnpm migrate && pnpm seed:prod",
     "docker:run": "docker run -p 8080:8080 gamo-api",
     "docker:build": "docker build -t gamo-api .",
     "postbuild": "shx cp -r prisma/seeds dist/prisma/seeds"
