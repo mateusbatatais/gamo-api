@@ -16,7 +16,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml .npmrc .pnpmfile.cjs ./
 
 # Instala dependências
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --force
 
 # Copia o resto da aplicação
 COPY . .
@@ -36,7 +36,8 @@ FROM node:21-bookworm-slim AS runner
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Instala versão específica do PNPM
-RUN npm install -g pnpm
+ARG PNPM_VERSION=10.11.1 # MESMA VERSÃO DO BUILDER
+RUN npm install -g pnpm@${PNPM_VERSION}
 
 WORKDIR /app
 
