@@ -7,7 +7,7 @@ FROM node:21-bookworm-slim AS builder
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Instala versão específica do PNPM
-ARG PNPM_VERSION=8.15.9 # ALTERE PARA SUA VERSÃO
+ARG PNPM_VERSION=8.15.9
 RUN npm install -g pnpm@${PNPM_VERSION}
 
 WORKDIR /app
@@ -21,10 +21,10 @@ RUN pnpm install --force
 # Copia o resto da aplicação
 COPY . .
 
-# Gera cliente Prisma
-RUN npx prisma generate
+# Regenera o cliente Prisma
+RUN npx prisma generate  # Garante que o cliente Prisma seja gerado antes de compilar o código
 
-# Build da aplicação
+# Compila o TypeScript para JavaScript
 RUN pnpm run build
 
 # --------------------------
@@ -36,24 +36,20 @@ FROM node:21-bookworm-slim AS runner
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Instala versão específica do PNPM
-ARG PNPM_VERSION=10.11.1 # MESMA VERSÃO DO BUILDER
-RUN npm install -g pnpm@${PNPM_VERSION}
+RUN npm install -g pnpm
 
 WORKDIR /app
 
-# Copia arquivos necessários
+# Copia arquivos necessários da etapa anterior
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/pnpm-lock.yaml ./
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 
 # Configura ambiente
 ENV NODE_ENV=production
 EXPOSE 8080
 
 # Comando de inicialização
-#CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
-
-# Comando reset migration
-CMD ["sh", "-c", "npx prisma migrate reset --force && npm run seed:prod && node dist/index.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
