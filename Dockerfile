@@ -22,10 +22,13 @@ RUN pnpm install --force
 COPY . .
 
 # Regenera o cliente Prisma
-RUN npx prisma generate  # Garante que o cliente Prisma seja gerado antes de compilar o código
+RUN npx prisma generate
 
 # Compila o TypeScript para JavaScript
 RUN pnpm run build
+
+# Verifique o conteúdo da pasta dist no estágio de construção
+RUN ls -R /app/dist 
 
 # --------------------------
 # Stage 2: Runner
