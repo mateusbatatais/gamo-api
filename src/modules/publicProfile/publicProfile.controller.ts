@@ -14,7 +14,8 @@ export const getPublicProfile = async (req: Request, res: Response, next: NextFu
 export const listUserConsoles = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { slug } = req.params;
-    const consoles = await service.listUserConsolesPublic(slug);
+    const locale = (req.query.locale as string) || "pt";
+    const consoles = await service.listUserConsolesPublic(slug, locale);
     res.json(consoles);
   } catch (err) {
     next(err);

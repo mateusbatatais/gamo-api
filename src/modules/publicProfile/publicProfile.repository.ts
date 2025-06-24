@@ -14,7 +14,10 @@ export const getUserBySlug = async (slug: string): Promise<PublicUserProfile | n
   });
 };
 
-export const getUserConsolesPublic = async (userId: number): Promise<UserConsolePublic[]> => {
+export const getUserConsolesPublic = async (
+  userId: number,
+  locale: string = "pt",
+): Promise<UserConsolePublic[]> => {
   const consoles = await db.userConsole.findMany({
     where: { userId },
     select: {
@@ -23,7 +26,7 @@ export const getUserConsolesPublic = async (userId: number): Promise<UserConsole
       console: {
         select: {
           translations: {
-            where: { locale: "pt" }, // Adaptar para o locale necessário
+            where: { locale },
             select: { name: true },
           },
         },
@@ -31,7 +34,7 @@ export const getUserConsolesPublic = async (userId: number): Promise<UserConsole
       variant: {
         select: {
           translations: {
-            where: { locale: "pt" },
+            where: { locale },
             select: { name: true },
           },
         },
