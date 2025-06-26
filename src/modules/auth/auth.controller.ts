@@ -24,8 +24,18 @@ export const signup = [
         message: "User created. Please verify your email.",
         userId,
       });
-    } catch (err) {
-      next(err);
+    } catch (error: unknown) {
+      console.error("Erro no cadastro:", error);
+      next(error);
+
+      // Log detalhado do erro de e-mail
+      if (typeof error === "object" && error !== null && "response" in error) {
+        if (typeof error === "object" && error !== null && "response" in error) {
+          console.error("Resposta SMTP:", (error as { response?: unknown }).response);
+        }
+      }
+
+      throw new Error("INTERNAL_SERVER_ERROR");
     }
   },
 ];
