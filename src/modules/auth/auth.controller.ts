@@ -16,8 +16,20 @@ export const signup = [
   validate(signupSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userId, rawToken } = await authService.signup(req.body);
-      await sendVerificationEmail(req.body.email, rawToken);
+      const { name, email, password, locale = "pt" } = req.body;
+      const { userId, rawToken } = await authService.signup({ name, email, password });
+
+      try {
+        await sendVerificationEmail(email, rawToken, locale);
+      } catch (emailError) {
+        console.error("Email sending failed:", emailError);
+        // Retorna sucesso mesmo com falha de e-mail, incluindo userId
+        return res.status(201).json({
+          code: "USER_CREATED_EMAIL_FAILED",
+          message: "User created but email verification failed",
+          userId, // userId está disponível aqui
+        });
+      }
 
       res.status(201).json({
         code: "USER_CREATED",
@@ -25,17 +37,8 @@ export const signup = [
         userId,
       });
     } catch (error: unknown) {
-      console.error("Erro no cadastro:", error);
-      next(error);
-
-      // Log detalhado do erro de e-mail
-      if (typeof error === "object" && error !== null && "response" in error) {
-        if (typeof error === "object" && error !== null && "response" in error) {
-          console.error("Resposta SMTP:", (error as { response?: unknown }).response);
-        }
-      }
-
-      throw new Error("INTERNAL_SERVER_ERROR");
+      console.error("Signup error:", error);
+      next(new AppError(500, "INTERNAL_SERVER_ERROR", "Internal Server Error"));
     }
   },
 ];

@@ -25,7 +25,7 @@ const router = Router();
 router.post("/signup", validate(signupSchema), signup);
 router.post("/login", validate(loginSchema), login);
 router.get("/verify-email", validateQuery(verifyEmailSchema), verifyEmail);
-router.post("/social/google", firebaseAuthMiddleware, socialLogin);
+router.post("/social-login", firebaseAuthMiddleware, socialLogin);
 router.post("/resend-verification", validate(resendVerificationSchema), resendVerification);
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 router.post("/recover", validate(recoverPasswordSchema), recoverPassword);
