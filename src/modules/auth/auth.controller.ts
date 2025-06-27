@@ -14,7 +14,7 @@ import { validate, validateQuery } from "../../middleware/validate.middleware.ts
 
 export const signup = [
   validate(signupSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { name, email, password, locale = "pt" } = req.body;
       const { userId, rawToken } = await authService.signup({ name, email, password });
@@ -24,11 +24,12 @@ export const signup = [
       } catch (emailError) {
         console.error("Email sending failed:", emailError);
         // Retorna sucesso mesmo com falha de e-mail, incluindo userId
-        return res.status(201).json({
+        res.status(201).json({
           code: "USER_CREATED_EMAIL_FAILED",
           message: "User created but email verification failed",
           userId, // userId está disponível aqui
         });
+        return;
       }
 
       res.status(201).json({
