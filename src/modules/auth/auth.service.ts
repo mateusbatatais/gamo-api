@@ -122,7 +122,7 @@ export const socialLogin = async (email: string, name: string) => {
   });
 
   return jwt.sign(
-    { userId: user.id, role: user.role, email: user.email },
+    { userId: user.id, role: user.role, email: user.email, hasPassword: !!user.password },
     process.env.JWT_SECRET!,
     { expiresIn: "7d" },
   );

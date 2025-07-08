@@ -7,6 +7,7 @@ import {
   SetInitialPasswordInput,
 } from "./user.schema";
 import { AppError } from "../../shared/errors";
+import jwt from "jsonwebtoken";
 
 export const getUserById = async (userId: number): Promise<UserProfile> => {
   return userRepository.getUserById(userId);
@@ -63,5 +64,26 @@ export const setInitialPassword = async (userId: number, input: SetInitialPasswo
   }
 
   const newHashed = await bcrypt.hash(input.newPassword, 10);
-  await userRepository.updateUser(userId, { password: newHashed });
+  const updatedUser = await userRepository.updateUser(userId, {
+    password: newHashed,
+  });
+
+  const newToken = jwt.sign(
+    {
+      userId: updatedUser.id,
+      role: updatedUser.role,
+      email: updatedUser.email,
+      name: updatedUser.name,
+      slug: updatedUser.slug,
+      profileImage: updatedUser.profileImage,
+      hasPassword: true,
+    },
+    process.env.JWT_SECRET!,
+    { expiresIn: "7d" },
+  );
+
+  return {
+    user: updatedUser,
+    token: newToken,
+  };
 };

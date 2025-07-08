@@ -10,6 +10,7 @@ interface AuthenticatedRequest extends Request {
     id: number;
     role: string;
     email: string;
+    hasPassword: boolean;
   };
 }
 
@@ -66,8 +67,17 @@ export const setInitialPassword = [
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { user } = req as AuthenticatedRequest;
-      await userService.setInitialPassword(user.id, req.body);
-      res.json({ code: "PASSWORD_SET", message: "Password set successfully" });
+      const { user: updatedUser, token: newToken } = await userService.setInitialPassword(
+        user.id,
+        req.body,
+      );
+
+      res.json({
+        code: "PASSWORD_SET",
+        message: "Password set successfully",
+        user: updatedUser,
+        token: newToken, // ← Novo token com hasPassword:true
+      });
     } catch (err) {
       next(err);
     }

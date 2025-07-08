@@ -9,6 +9,7 @@ declare module "express" {
       id: number;
       role: string;
       email: string;
+      hasPassword: boolean;
     };
   }
 }
@@ -27,6 +28,7 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
       userId: number;
       role: string;
       email: string;
+      hasPassword: boolean;
       iat?: number;
       exp?: number;
     };
@@ -40,6 +42,7 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
       id: payload.userId,
       role: payload.role,
       email: payload.email,
+      hasPassword: payload.hasPassword,
     };
 
     next();
