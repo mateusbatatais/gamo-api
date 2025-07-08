@@ -14,8 +14,28 @@ import { generateUniqueSlug } from "../../shared/slugify";
 
 const TOKEN_EXPIRES_IN = "7d";
 
-function signToken(userId: number): string {
-  return jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: TOKEN_EXPIRES_IN });
+function signToken(user: {
+  id: number;
+  name: string;
+  slug: string;
+  email: string;
+  profileImage: string | null;
+  role: string;
+  hasPassword: boolean;
+}): string {
+  return jwt.sign(
+    {
+      userId: user.id,
+      name: user.name,
+      slug: user.slug,
+      email: user.email,
+      profileImage: user.profileImage,
+      role: user.role,
+      hasPassword: user.hasPassword,
+    },
+    process.env.JWT_SECRET!,
+    { expiresIn: TOKEN_EXPIRES_IN },
+  );
 }
 
 function generateTokenWithExpiry(expireMs: number) {
@@ -58,7 +78,15 @@ export const login = async (input: LoginInput) => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) throw new AppError(401, "INVALID_CREDENTIALS", "Invalid credentials");
 
-  return signToken(user.id);
+  return signToken({
+    id: user.id,
+    name: user.name,
+    slug: user.slug,
+    email: user.email,
+    profileImage: user.profileImage,
+    role: user.role,
+    hasPassword: true,
+  });
 };
 
 export const resendVerificationToken = async (input: ResendVerificationInput) => {
@@ -121,11 +149,15 @@ export const socialLogin = async (email: string, name: string) => {
     emailVerified: true,
   });
 
-  return jwt.sign(
-    { userId: user.id, role: user.role, email: user.email, hasPassword: !!user.password },
-    process.env.JWT_SECRET!,
-    { expiresIn: "7d" },
-  );
+  return signToken({
+    id: user.id,
+    name: user.name,
+    slug: user.slug,
+    email: user.email,
+    profileImage: user.profileImage,
+    role: user.role,
+    hasPassword: !!user.password,
+  });
 };
 
 export const verifyEmail = async (token: string) => {

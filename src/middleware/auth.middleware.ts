@@ -1,14 +1,16 @@
-// src/middleware/auth.middleware.ts
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { AppError } from "../shared/errors";
 
-declare module "express" {
+declare module "express-serve-static-core" {
   interface Request {
     user?: {
       id: number;
-      role: string;
+      name: string;
+      slug: string;
       email: string;
+      profileImage: string | null;
+      role: string;
       hasPassword: boolean;
     };
   }
@@ -26,8 +28,11 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: number;
-      role: string;
+      name: string;
+      slug: string;
       email: string;
+      profileImage: string | null;
+      role: string;
       hasPassword: boolean;
       iat?: number;
       exp?: number;
@@ -40,8 +45,11 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
 
     req.user = {
       id: payload.userId,
-      role: payload.role,
+      name: payload.name,
+      slug: payload.slug,
       email: payload.email,
+      profileImage: payload.profileImage,
+      role: payload.role,
       hasPassword: payload.hasPassword,
     };
 
