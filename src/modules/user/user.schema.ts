@@ -40,7 +40,23 @@ export const changePasswordSchema = z
     }
   });
 
+export const setInitialPasswordSchema = z
+  .object({
+    newPassword: z.string().min(6),
+    confirmNewPassword: z.string().min(6),
+  })
+  .superRefine((data, ctx) => {
+    if (data.newPassword !== data.confirmNewPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Passwords do not match",
+        path: ["confirmNewPassword"],
+      });
+    }
+  });
+
 // Types
 export type UserProfile = z.infer<typeof userProfileSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type SetInitialPasswordInput = z.infer<typeof setInitialPasswordSchema>;

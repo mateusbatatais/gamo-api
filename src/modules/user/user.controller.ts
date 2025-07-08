@@ -1,7 +1,7 @@
 // user.controller.ts
 import { Request, Response, NextFunction } from "express";
 import * as userService from "./user.service";
-import { updateProfileSchema, changePasswordSchema } from "./user.schema";
+import { updateProfileSchema, changePasswordSchema, setInitialPasswordSchema } from "./user.schema";
 import { validate } from "../../middleware/validate.middleware.ts";
 import { AnyZodObject } from "zod";
 
@@ -46,16 +46,28 @@ export const updateProfile = [
 ];
 
 export const changePassword = [
-  validate(changePasswordSchema), // Agora funciona com ZodSchema
+  validate(changePasswordSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { user } = req as AuthenticatedRequest;
 
-      // Remove o campo de confirmação
       const { ...passwordData } = req.body;
 
       await userService.changePassword(user.id, passwordData);
       res.json({ code: "PASSWORD_CHANGED", message: "Password changed successfully" });
+    } catch (err) {
+      next(err);
+    }
+  },
+];
+
+export const setInitialPassword = [
+  validate(setInitialPasswordSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { user } = req as AuthenticatedRequest;
+      await userService.setInitialPassword(user.id, req.body);
+      res.json({ code: "PASSWORD_SET", message: "Password set successfully" });
     } catch (err) {
       next(err);
     }

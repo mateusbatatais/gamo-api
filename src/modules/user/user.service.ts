@@ -1,6 +1,11 @@
 import * as userRepository from "./user.repository";
 import bcrypt from "bcryptjs";
-import { UserProfile, UpdateProfileInput, ChangePasswordInput } from "./user.schema";
+import {
+  UserProfile,
+  UpdateProfileInput,
+  ChangePasswordInput,
+  SetInitialPasswordInput,
+} from "./user.schema";
 import { AppError } from "../../shared/errors";
 
 export const getUserById = async (userId: number): Promise<UserProfile> => {
@@ -44,6 +49,17 @@ export const changePassword = async (
   const isMatch = await bcrypt.compare(input.currentPassword, user.password);
   if (!isMatch) {
     throw new AppError(401, "INVALID_CREDENTIALS", "Current password is incorrect");
+  }
+
+  const newHashed = await bcrypt.hash(input.newPassword, 10);
+  await userRepository.updateUser(userId, { password: newHashed });
+};
+
+export const setInitialPassword = async (userId: number, input: SetInitialPasswordInput) => {
+  const hasPassword = await userRepository.userHasPassword(userId);
+
+  if (hasPassword) {
+    throw new AppError(400, "PASSWORD_EXISTS", "Password already set");
   }
 
   const newHashed = await bcrypt.hash(input.newPassword, 10);

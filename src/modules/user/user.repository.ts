@@ -93,3 +93,11 @@ export const getUserWithPasswordById = async (userId: number) => {
     },
   });
 };
+
+export const userHasPassword = async (userId: number): Promise<boolean> => {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { password: true },
+  });
+  return !!user?.password;
+};
