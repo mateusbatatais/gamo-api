@@ -12,6 +12,7 @@ export const ListConsoleVariantsSchema = z.object({
   locale: LocaleSchema.default("pt"),
   page: z.coerce.number().int().min(1).default(1),
   perPage: z.coerce.number().int().min(1).max(100).default(20),
+  search: z.string().optional(), // Novo parâmetro de busca
 });
 
 // Tipo de entrada (para o controller)
@@ -24,4 +25,5 @@ export type ConsoleVariantFilters = {
   locale: Locale;
   skip: number;
   take: number;
+  search?: string;
 };

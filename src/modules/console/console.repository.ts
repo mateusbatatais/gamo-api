@@ -1,8 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { db } from "../../core/db";
+import { normalizeSearch } from "../../shared/normalize";
 
 export interface ListConsoleVariantsOptions {
   brand?: string[];
+  search?: string;
   generation?: number[];
   locale: string;
   skip: number;
@@ -46,6 +48,47 @@ export const listConsoleVariants = async (
   conditions.push({
     translations: { some: { locale: options.locale } },
   });
+
+  // Nova lógica de busca
+  if (options.search) {
+    const normalizedSearch = normalizeSearch(options.search);
+
+    conditions.push({
+      OR: [
+        {
+          translations: {
+            some: {
+              name: {
+                contains: normalizedSearch,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
+        {
+          console: {
+            translations: {
+              some: {
+                OR: [
+                  { name: { contains: normalizedSearch, mode: "insensitive" } },
+                  { description: { contains: normalizedSearch, mode: "insensitive" } },
+                ],
+              },
+            },
+          },
+        },
+        { slug: { contains: normalizedSearch, mode: "insensitive" } },
+        {
+          console: {
+            OR: [
+              { slug: { contains: normalizedSearch, mode: "insensitive" } },
+              { nickname: { contains: normalizedSearch, mode: "insensitive" } },
+            ],
+          },
+        },
+      ],
+    });
+  }
 
   return db.consoleVariant.findMany({
     where: { AND: conditions },

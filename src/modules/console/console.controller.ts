@@ -30,6 +30,7 @@ export const listConsoleVariants = [
         locale: queryParams.locale,
         skip: (queryParams.page - 1) * queryParams.perPage,
         take: queryParams.perPage,
+        search: queryParams.search,
       });
 
       res.json(result);

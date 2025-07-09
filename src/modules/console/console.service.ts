@@ -11,9 +11,16 @@ import { ConsoleVariantFilters } from "./console.schema";
 export const getConsoleVariants = async (
   filters: ConsoleVariantFilters,
 ): Promise<ConsoleVariantsResponse> => {
+  const countFilters = {
+    brand: filters.brand,
+    generation: filters.generation,
+    locale: filters.locale,
+    search: filters.search,
+  };
+
   const [items, total] = await Promise.all([
     listConsoleVariants(filters),
-    countConsoleVariants(filters),
+    countConsoleVariants(countFilters),
   ]);
 
   return {
