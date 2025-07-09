@@ -176,6 +176,55 @@ export const countConsoleVariants = async (
     });
   }
 
+  conditions.push({
+    translations: { some: { locale: options.locale } },
+  });
+
+  if (options.search) {
+    const searchWords = normalizeSearch(options.search);
+    const searchConditions: Prisma.ConsoleVariantWhereInput[] = [];
+
+    searchWords.forEach((word) => {
+      searchConditions.push({
+        OR: [
+          {
+            translations: {
+              some: {
+                name: {
+                  contains: word,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+          {
+            console: {
+              translations: {
+                some: {
+                  OR: [
+                    { name: { contains: word, mode: "insensitive" } },
+                    { description: { contains: word, mode: "insensitive" } },
+                  ],
+                },
+              },
+            },
+          },
+          { slug: { contains: word, mode: "insensitive" } },
+          {
+            console: {
+              OR: [
+                { slug: { contains: word, mode: "insensitive" } },
+                { nickname: { contains: word, mode: "insensitive" } },
+              ],
+            },
+          },
+        ],
+      });
+    });
+
+    conditions.push({ AND: searchConditions });
+  }
+
   return db.consoleVariant.count({
     where: { AND: conditions },
   });
