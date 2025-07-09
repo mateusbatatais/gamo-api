@@ -31,6 +31,7 @@ export const listConsoleVariants = [
         skip: (queryParams.page - 1) * queryParams.perPage,
         take: queryParams.perPage,
         search: queryParams.search,
+        sort: queryParams.sort,
       });
 
       res.json(result);

@@ -1,10 +1,12 @@
 import { Prisma } from "@prisma/client";
 import { db } from "../../core/db";
 import { normalizeSearch } from "../../shared/normalize";
+import { ConsoleSortOption } from "./console.schema";
 
 export interface ListConsoleVariantsOptions {
   brand?: string[];
   search?: string;
+  sort?: ConsoleSortOption;
   generation?: number[];
   locale: string;
   skip: number;
@@ -99,6 +101,36 @@ export const listConsoleVariants = async (
     conditions.push({ AND: searchConditions });
   }
 
+  // Definir ordenação
+  const orderBy: Prisma.ConsoleVariantOrderByWithRelationInput[] = [];
+
+  switch (options.sort) {
+    case "name-asc":
+      // Ordenar pelo nome da tradução em ordem alfabética
+      orderBy.push({ translations: { _count: "asc" } });
+      orderBy.push({ slug: "asc" });
+      break;
+
+    case "name-desc":
+      orderBy.push({ translations: { _count: "desc" } });
+      orderBy.push({ slug: "desc" });
+      break;
+
+    case "releaseDate-asc":
+      // Ordenar pela data de lançamento do console (mais antigos primeiro)
+      orderBy.push({ console: { releaseDate: "asc" } });
+      break;
+
+    case "releaseDate-desc":
+      // Ordenar pela data de lançamento do console (mais novos primeiro)
+      orderBy.push({ console: { releaseDate: "desc" } });
+      break;
+
+    default:
+      // Ordenação padrão (name-asc)
+      orderBy.push({ slug: "asc" });
+  }
+
   return db.consoleVariant.findMany({
     where: { AND: conditions },
     include: {
@@ -121,6 +153,7 @@ export const listConsoleVariants = async (
     },
     skip: options.skip,
     take: options.take,
+    orderBy,
   });
 };
 
