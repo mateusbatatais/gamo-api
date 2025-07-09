@@ -49,45 +49,54 @@ export const listConsoleVariants = async (
     translations: { some: { locale: options.locale } },
   });
 
-  // Nova lógica de busca
   if (options.search) {
-    const normalizedSearch = normalizeSearch(options.search);
+    const searchWords = normalizeSearch(options.search);
+    const searchConditions: Prisma.ConsoleVariantWhereInput[] = [];
 
-    conditions.push({
-      OR: [
-        {
-          translations: {
-            some: {
-              name: {
-                contains: normalizedSearch,
-                mode: "insensitive",
-              },
-            },
-          },
-        },
-        {
-          console: {
+    // Para cada palavra, criar condições OR
+    searchWords.forEach((word) => {
+      searchConditions.push({
+        OR: [
+          // Busca em traduções do variant
+          {
             translations: {
               some: {
-                OR: [
-                  { name: { contains: normalizedSearch, mode: "insensitive" } },
-                  { description: { contains: normalizedSearch, mode: "insensitive" } },
-                ],
+                name: {
+                  contains: word,
+                  mode: "insensitive",
+                },
               },
             },
           },
-        },
-        { slug: { contains: normalizedSearch, mode: "insensitive" } },
-        {
-          console: {
-            OR: [
-              { slug: { contains: normalizedSearch, mode: "insensitive" } },
-              { nickname: { contains: normalizedSearch, mode: "insensitive" } },
-            ],
+          // Busca em traduções do console
+          {
+            console: {
+              translations: {
+                some: {
+                  OR: [
+                    { name: { contains: word, mode: "insensitive" } },
+                    { description: { contains: word, mode: "insensitive" } },
+                  ],
+                },
+              },
+            },
           },
-        },
-      ],
+          // Busca em campos diretos
+          { slug: { contains: word, mode: "insensitive" } },
+          {
+            console: {
+              OR: [
+                { slug: { contains: word, mode: "insensitive" } },
+                { nickname: { contains: word, mode: "insensitive" } },
+              ],
+            },
+          },
+        ],
+      });
     });
+
+    // Combinar todas as palavras com AND
+    conditions.push({ AND: searchConditions });
   }
 
   return db.consoleVariant.findMany({
