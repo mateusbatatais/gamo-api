@@ -7,8 +7,12 @@ declare module "express" {
   interface Request {
     user?: {
       id: number;
-      role: string;
+      name: string;
+      slug: string;
       email: string;
+      profileImage: string | null;
+      role: string;
+      hasPassword: boolean;
     };
   }
 }
