@@ -22,12 +22,12 @@ export const listUserConsoles = async (req: Request, res: Response, next: NextFu
   }
 };
 
-export const listUserGames = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { slug } = req.params;
-    const games = await service.listUserGamesPublic(slug);
-    res.json(games);
-  } catch (err) {
-    next(err);
-  }
-};
+// export const listUserGames = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { slug } = req.params;
+//     const games = await service.listUserGamesPublic(slug);
+//     res.json(games);
+//   } catch (err) {
+//     next(err);
+//   }
+// };

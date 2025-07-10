@@ -24,7 +24,8 @@ export const UserConsolePublicSchema = z.object({
   hasManual: z.boolean().nullable(),
   condition: z.string().nullable(),
   acceptsTrade: z.boolean().nullable(),
-  photoUrl: z.string().nullable(),
+  photoMain: z.string().nullable(),
+  photos: z.array(z.string()).nullable(),
   createdAt: z.date(),
 });
 
@@ -37,7 +38,8 @@ export const UserGamePublicSchema = z.object({
   consoleName: z.string(),
   status: z.string(),
   customName: z.string().nullable(),
-  photoUrl: z.string().nullable(),
+  photoMain: z.string().nullable(),
+  photos: z.array(z.string()).nullable(),
 });
 
 export type UserGamePublic = z.infer<typeof UserGamePublicSchema>;

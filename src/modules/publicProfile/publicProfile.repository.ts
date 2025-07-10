@@ -1,5 +1,5 @@
 import { db } from "../../core/db";
-import { PublicUserProfile, UserConsolePublic, UserGamePublic } from "./publicProfile.schema";
+import { PublicUserProfile, UserConsolePublic } from "./publicProfile.schema";
 
 export const getUserBySlug = async (slug: string): Promise<PublicUserProfile | null> => {
   return db.user.findUnique({
@@ -55,7 +55,8 @@ export const getUserConsolesPublic = async (
       hasManual: true,
       condition: true,
       acceptsTrade: true,
-      photoUrl: true,
+      photoMain: true,
+      photos: true,
       createdAt: true,
     },
   });
@@ -74,46 +75,49 @@ export const getUserConsolesPublic = async (
     hasManual: console.hasManual,
     condition: console.condition,
     acceptsTrade: console.acceptsTrade,
-    photoUrl: console.photoUrl,
+    photoMain: console.photoMain,
+    photos: console.photos,
     createdAt: console.createdAt,
   }));
 };
 
-export const getUserGamesPublic = async (userId: number): Promise<UserGamePublic[]> => {
-  const games = await db.userItem.findMany({
-    where: { userId },
-    select: {
-      id: true,
-      gameId: true,
-      game: {
-        select: {
-          translations: {
-            where: { locale: "pt" },
-            select: { title: true },
-          },
-        },
-      },
-      console: {
-        select: {
-          translations: {
-            where: { locale: "pt" },
-            select: { name: true },
-          },
-        },
-      },
-      status: true,
-      customName: true,
-      photoUrl: true,
-    },
-  });
+// export const getUserGamesPublic = async (userId: number): Promise<UserGamePublic[]> => {
+//   const games = await db.userItem.findMany({
+//     where: { userId },
+//     select: {
+//       id: true,
+//       gameId: true,
+//       game: {
+//         select: {
+//           translations: {
+//             where: { locale: "pt" },
+//             select: { title: true },
+//           },
+//         },
+//       },
+//       console: {
+//         select: {
+//           translations: {
+//             where: { locale: "pt" },
+//             select: { name: true },
+//           },
+//         },
+//       },
+//       status: true,
+//       customName: true,
+//       photoMain: true,
+//       photos: true,
+//     },
+//   });
 
-  return games.map((game) => ({
-    id: game.id,
-    gameId: game.gameId,
-    gameTitle: game.game.translations[0]?.title || "Unknown Game",
-    consoleName: game.console.translations[0]?.name || "Unknown Console",
-    status: game.status,
-    customName: game.customName,
-    photoUrl: game.photoUrl,
-  }));
-};
+//   return games.map((game) => ({
+//     id: game.id,
+//     gameId: game.gameId,
+//     gameTitle: game.game.translations[0]?.title || "Unknown Game",
+//     consoleName: game.console.translations[0]?.name || "Unknown Console",
+//     status: game.status,
+//     customName: game.customName,
+//     photoMain: game.photoMain,
+//     photos: game.photos || [],
+//   }));
+// };
