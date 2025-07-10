@@ -52,7 +52,8 @@ describe("UserConsole Service", () => {
     hasManual: true,
     condition: "USED",
     acceptsTrade: true,
-    photoUrl: "http://example.com/photo.jpg",
+    photoMain: "https://example.com/main.jpg",
+    photos: ["https://example.com/photo1.jpg", "https://example.com/photo2.jpg"],
   };
 
   // Objeto completo com todas as propriedades necessárias
@@ -101,7 +102,8 @@ describe("UserConsole Service", () => {
     hasManual: true,
     condition: "USED" as $Enums.ItemCondition,
     acceptsTrade: true,
-    photoUrl: "http://example.com/photo.jpg",
+    photoMain: "https://example.com/main.jpg",
+    photos: ["https://example.com/photo1.jpg", "https://example.com/photo2.jpg"],
     createdAt: new Date(),
   };
 
@@ -128,7 +130,8 @@ describe("UserConsole Service", () => {
         hasManual: input.hasManual,
         condition: input.condition as $Enums.ItemCondition,
         acceptsTrade: input.acceptsTrade,
-        photoUrl: input.photoUrl,
+        photoMain: input.photoMain,
+        photos: input.photos,
       });
     });
 

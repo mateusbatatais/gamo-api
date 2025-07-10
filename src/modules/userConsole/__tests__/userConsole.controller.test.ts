@@ -43,7 +43,8 @@ describe("UserConsole Controller", () => {
     hasManual: null,
     condition: $Enums.ItemCondition.USED,
     acceptsTrade: null,
-    photoUrl: null,
+    photoMain: null,
+    photos: [],
     createdAt: new Date(),
   };
 

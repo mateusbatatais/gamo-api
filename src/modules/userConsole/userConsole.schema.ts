@@ -12,7 +12,8 @@ export const UserConsoleInputSchema = z.object({
   hasManual: z.boolean().optional(),
   condition: z.enum(["NEW", "USED", "REFURBISHED"]).optional(),
   acceptsTrade: z.boolean().optional(),
-  photoUrl: z.string().optional(),
+  photoMain: z.string().optional(),
+  photos: z.array(z.string()).optional(),
 });
 
 export type UserConsoleInput = z.infer<typeof UserConsoleInputSchema>;
@@ -34,7 +35,8 @@ export const UserConsoleResponseSchema = z.object({
   hasManual: z.boolean().nullable(),
   condition: z.string().nullable(),
   acceptsTrade: z.boolean().nullable(),
-  photoUrl: z.string().nullable(),
+  photoMain: z.string().nullable(),
+  photos: z.array(z.string()).nullable(),
   createdAt: z.date(),
 });
 

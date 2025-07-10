@@ -43,7 +43,8 @@ export const createUserConsole = async (userId: number, input: UserConsoleInput)
     hasManual: input.hasManual,
     condition: input.condition as $Enums.ItemCondition | undefined,
     acceptsTrade: input.acceptsTrade,
-    photoUrl: input.photoUrl,
+    photoMain: input.photoMain,
+    photos: input.photos,
   };
 
   return repository.createUserConsole(data);
@@ -76,7 +77,8 @@ export const updateUserConsole = async (id: number, userId: number, input: UserC
     hasManual: input.hasManual,
     condition: input.condition as $Enums.ItemCondition | undefined,
     acceptsTrade: input.acceptsTrade,
-    photoUrl: input.photoUrl,
+    photoMain: input.photoMain,
+    photos: input.photos,
   };
 
   return repository.updateUserConsole(id, data);

@@ -54,7 +54,8 @@ const mockUserConsole: UserConsoleResponse = {
   hasManual: true,
   condition: ItemCondition.USED,
   acceptsTrade: false,
-  photoUrl: "https://example.com/console.jpg",
+  photoMain: "https://example.com/main.jpg",
+  photos: ["https://example.com/photo1.jpg", "https://example.com/photo2.jpg"],
   createdAt: new Date(),
 };
 

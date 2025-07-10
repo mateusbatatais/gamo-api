@@ -16,7 +16,8 @@ const selectFields = {
   hasManual: true,
   condition: true,
   acceptsTrade: true,
-  photoUrl: true,
+  photoMain: true,
+  photos: true,
   createdAt: true,
 };
 

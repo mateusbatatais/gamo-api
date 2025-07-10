@@ -160,7 +160,8 @@ model UserConsole {
   hasManual        Boolean?       @default(false) // possui manual?
   condition        ItemCondition? // condição (NEW, USED, etc.)
   acceptsTrade     Boolean?       @default(false) // aceita troca?
-  photoUrl         String? // URL da foto principal
+  photoMain        String? // URL da foto principal
+  photos           String[] // URLs de fotos adicionais
   createdAt        DateTime       @default(now())
 
   user    User           @relation(fields: [userId], references: [id])
