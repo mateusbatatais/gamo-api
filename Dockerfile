@@ -58,4 +58,4 @@ EXPOSE 8080
 # CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/index.js"]
 
 # Comando de inicialização - Rodar migrate e seed manualmente
-CMD ["sh", "-c", "npx prisma migrate reset && node dist/prisma/seed.js && node dist/src/index.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/prisma/seed.js && node dist/src/index.js"]
