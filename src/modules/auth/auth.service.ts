@@ -138,12 +138,16 @@ export const resetPassword = async (input: ResetPasswordInput) => {
 };
 
 export const socialLogin = async (email: string, name: string) => {
+  const normalizedEmail = email.replace(
+    /^([^_]+?)_(gmail|hotmail|outlook|yahoo|icloud)\.([a-z]{2,3})#EXT#@.+$/i,
+    "$1@$2.$3",
+  );
   const slug = await generateUniqueSlug(name);
 
-  const user = await authRepository.upsertUserByEmail(email, {
-    name: name || email.split("@")[0],
+  const user = await authRepository.upsertUserByEmail(normalizedEmail, {
+    name: name || normalizedEmail.split("@")[0],
     slug,
-    email,
+    email: normalizedEmail,
     password: null,
     role: "NORMAL",
     emailVerified: true,
@@ -153,13 +157,12 @@ export const socialLogin = async (email: string, name: string) => {
     id: user.id,
     name: user.name,
     slug: user.slug,
-    email: user.email,
+    email: normalizedEmail,
     profileImage: user.profileImage,
     role: user.role,
     hasPassword: !!user.password,
   });
 };
-
 export const verifyEmail = async (token: string) => {
   const user = await authRepository.findUserByVerificationToken(token);
   if (!user) {
